@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Class-path: ./j3dcore.jar ./j3dutils.jar ./vecmath.jar ./itextpdf-5.4.1.jar ./jcommon-1.0.20.jar ./jfreechart-1.0.16.jar
+Main-Class: MainFrame
+

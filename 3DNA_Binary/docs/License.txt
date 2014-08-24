@@ -1,0 +1,21 @@
+  3DNA
+  ~~~~~~~~~~~~~~
+  License for use and distribution
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+(C) 2014 Prof. Dr. Manish K Gupta,Laboratory of Natural Information Processing
+DA-IICT, Gandhinagar, Gujarat 382007 
+http://www.guptalab.org/3dna
+Email: 3dna@guptalab.org
+
+This software is available as an open source (approval pending from Open Source Initiatives) to academic, non-profit institutions etc. under an open source license agreement and may be used only in accordance with the terms of the agreement. Any selling or distribution of the program or its parts, original or modified, is prohibited without a written permission from 
+Manish K Gupta. 
+========================================================
+Team 
+
+Principle Investigator: Dr. Manish K. Gupta
+Key Developers:  Shikhar K. Gupta, Foram M. Joshi
+Graduate Mentor: Dixita Limbachiya
+Software Logo: Foram M. Joshi 
+=======================================================
+
+Note: You can use 3DNA on any computer, including a computer in a commercial organization. You don't need to register or pay for 3DNA.
