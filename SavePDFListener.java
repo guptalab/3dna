@@ -33,6 +33,7 @@ import com.itextpdf.text.pdf.FontSelector;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
+import sun.applet.Main;
 
 public class SavePDFListener implements ActionListener {
 
@@ -145,7 +146,7 @@ public class SavePDFListener implements ActionListener {
 
         Barcode128 code128 = new Barcode128();
         code128.setGenerateChecksum(true);
-        code128.setCode(stringTime+"Data_"+MainFrame.projectName);
+        code128.setCode(stringTime+"Data_");
 
         try {
             document.add(code128.createImageWithBarcode(writer.getDirectContent(), null, null));

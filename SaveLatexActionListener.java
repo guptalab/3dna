@@ -4,6 +4,7 @@
  */
 
 import com.itextpdf.text.pdf.Barcode128;
+
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +42,7 @@ public class SaveLatexActionListener implements ActionListener {
         File dir = new File(MainFrame.projectPath+"/3DNA_LateX_Files");
         dir.mkdirs();
         File teXFile=new File(MainFrame.projectPath+"/3DNA_LateX_Files"+"/"+"3DNA_LateX_File.tex");
-       /* Date date=new Date();
+        Date date=new Date();
         Barcode128 barcode = new Barcode128();
         barcode.setGenerateChecksum(true);
         barcode.setCode(String.valueOf(date.getTime())+ "_3DNA_Data");
@@ -81,7 +82,6 @@ public class SaveLatexActionListener implements ActionListener {
         } catch (IOException e1) {
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
-        */
         //begin writing in the file
         try {
             FileWriter fw=new FileWriter(teXFile.getAbsolutePath());
@@ -108,6 +108,13 @@ public class SaveLatexActionListener implements ActionListener {
                     "\\begin{document}\n" +
                     "\n" +
                     "\\begin{landscape}\n" +
+                    "\\begin{figure}\n" +
+                    "%\\centering\n" +
+                    "\\includegraphics{3DNA_Barcode.png}\n" +
+                    "%\\caption{Barcode Identifier}\n" +
+                    "\\label{barcode}\n" +
+                    "\\end{figure}\n" +
+                    "\n" +
                     "\\begin{center}\n" +
                     "{\\bf 3DNA Data}\n" +
                     "\\end{center}\n" +

@@ -203,7 +203,7 @@ public class ImportActionListener extends MouseAdapter implements ActionListener
             for(int j=0;j<MainFrame.height;j++){
                 for (int k=0;k<MainFrame.depth;k++){
                     if(MainFrame.StoreCoordinates[i][j][k]==true){
-                        DNAColorCube c1 = new DNAColorCube();
+                        DNAColorCube c1 = new DNAColorCube(0.05f);
                         c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
                         c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
                         c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);

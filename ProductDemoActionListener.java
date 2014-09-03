@@ -19,7 +19,7 @@ public class ProductDemoActionListener implements ActionListener {
 		// TODO Auto-generated method stub
 		Desktop desktop = Desktop.getDesktop();
         try {
-            URI updateLink = new URI("http://guptalab.org/3dna/demo.html");
+            URI updateLink = new URI("http://guptalab.org/dnapen/demo.htm");
             desktop.browse(updateLink);
         } catch (URISyntaxException e1) {
             e1.printStackTrace(System.out);

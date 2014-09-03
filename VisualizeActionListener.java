@@ -82,7 +82,7 @@ public class VisualizeActionListener implements ActionListener{
         masterTrans.setCapability(TransformGroup.ALLOW_CHILDREN_WRITE);
         for(int i=0;i<MainFrame.width;i++){
             for(int j=0;j<MainFrame.height;j++){
-                DNAColorCube c1 = new DNAColorCube();
+                DNAColorCube c1 = new DNAColorCube(0.05f);
                 c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
                 c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
                 c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);

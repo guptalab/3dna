@@ -25,28 +25,30 @@ public class MainFrame extends JFrame{
         JPanel basePanel=new JPanel(); //Base JPanel on which all the other Split Panes/Toolbars/children JPanels are added
         basePanel.setLayout(new BorderLayout()); //Adding basePanel to the Frame
         getContentPane().add(basePanel);
-        addPanels(); // calling function addPanels() that declares and adds other panels on the basePanel
+        definePanels(); // calling function definePanels() that declares leftJToolBar, topRightJPanel, bottomRightJPanel
 
         //configure Panels and Split Panes
         hPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT );
         basePanel.add(hPanel,BorderLayout.CENTER );
         vPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT );
-        hPanel.setLeftComponent(leftJPanel );
         hPanel.setRightComponent(vPanel);
         vPanel.setTopComponent(topRightJPanel);
         vPanel.setBottomComponent(bottomRightJPanel );
-        ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
-
         //add JMenuBar and JToolBar
         createAndShowGUI();
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
     }
-    public void addPanels(){
+    public void definePanels(){
 
-        leftJPanel = new JPanel(); //leftJPanel supports all the buttons that are used to move around in the canvas
-        leftJPanel.setLayout( new BorderLayout() );
-        leftJPanel.setBackground(Color.DARK_GRAY);
-        // Add leftJPanel Images and Buttons
+        leftJToolBar = new JToolBar("Canvas Control"); //leftJToolBar supports all the buttons that are used to move around in the canvas
+        leftJToolBar.setLayout( new GridBagLayout() );
+        GridBagConstraints gridBagConstraints=new GridBagConstraints();
+        gridBagConstraints.insets=new Insets(10,5,0,0);
+        leftJToolBar.setBackground(Color.DARK_GRAY);
+        this.add(leftJToolBar,BorderLayout.WEST);
+        leftJToolBar.setVisible(false);
+
+        // Add leftJToolBar Images and Buttons
         ImageIcon zoominIcon = new ImageIcon("icons/zoomin.png");
         ImageIcon zoomoutIcon = new ImageIcon("icons/zoomout.png");
         ImageIcon upArrowIcon = new ImageIcon("icons/arrow-up.png");
@@ -57,13 +59,21 @@ public class MainFrame extends JFrame{
         ImageIcon undoIcon = new ImageIcon("icons/undo.png");
 
         zoomInButton = new JButton(zoominIcon);
+        zoomInButton.setBackground(Color.DARK_GRAY);
         zoomOutButton = new JButton(zoomoutIcon);
+        zoomOutButton.setBackground(Color.DARK_GRAY);
         upButton = new JButton(upArrowIcon);
+        upButton.setBackground(Color.DARK_GRAY);
         downButton = new JButton(downArrowIcon);
+        downButton.setBackground(Color.DARK_GRAY);
         leftButton = new JButton(leftArrowIcon);
+        leftButton.setBackground(Color.DARK_GRAY);
         rightButton = new JButton(rightArrowIcon);
+        rightButton.setBackground(Color.DARK_GRAY);
         resetButton = new JButton(resetIcon);
+        resetButton.setBackground(Color.DARK_GRAY);
         undoButton = new JButton(undoIcon);
+        undoButton.setBackground(Color.DARK_GRAY);
 
         zoomInButton.addActionListener(new ZoomInActionListener());
         zoomOutButton.addActionListener(new ZoomOutActionListener());
@@ -74,44 +84,37 @@ public class MainFrame extends JFrame{
         resetButton.addActionListener(new ResetButtonActionListener());
         undoButton.addActionListener(new UndoActionListener());
 
-        JPanel mainPanel=new JPanel(new GridBagLayout());
-        mainPanel.setBackground(Color.DARK_GRAY);
-        GridBagConstraints gridBagConstraints=new GridBagConstraints();
-        gridBagConstraints.insets=new Insets(10,10,5,5);
-
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=0;
-        mainPanel.add(zoomInButton,gridBagConstraints);
+        leftJToolBar.add(zoomInButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=1;
-        mainPanel.add(zoomOutButton,gridBagConstraints);
+        leftJToolBar.add(zoomOutButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=2;
-        mainPanel.add(upButton,gridBagConstraints);
+        leftJToolBar.add(upButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=3;
-        mainPanel.add(leftButton,gridBagConstraints);
+        leftJToolBar.add(leftButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=4;
-        mainPanel.add(rightButton,gridBagConstraints);
+        leftJToolBar.add(rightButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=5;
-        mainPanel.add(downButton,gridBagConstraints);
+        leftJToolBar.add(downButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=6;
-        mainPanel.add(resetButton,gridBagConstraints);
+        leftJToolBar.add(resetButton,gridBagConstraints);
 
         gridBagConstraints.gridx=0;
         gridBagConstraints.gridy=7;
-        mainPanel.add(undoButton,gridBagConstraints);
-
-        leftJPanel.add(mainPanel,BorderLayout.PAGE_START);
+        leftJToolBar.add(undoButton,gridBagConstraints);
 
         //Main Display Panel
         topRightJPanel = new JPanel();
@@ -153,13 +156,121 @@ public class MainFrame extends JFrame{
         });
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
         topRightJPanel.add(editorScrollPane);
+
+
+        //Advanced panel toolbar
+        rightJToolBar = new JToolBar("Advanced Option Control"); //leftJToolBar supports all the buttons that are used to move around in the canvas
+        rightJToolBar.setLayout( new GridBagLayout() );
+        rightJToolBar.setBackground(Color.DARK_GRAY);
+        this.add(rightJToolBar,BorderLayout.EAST);
+        rightJToolBar.setLayout(new GridBagLayout());
+
+        JLabel multibleDeletionLabel = new JLabel("<html><style>h3{color:white;}</style><h3>Multiple Deletion:</h3></html>");
+
+        deletePlaneRadioButton = new JRadioButton("<html><style>h4{color:white;}</style><h4>Delete a plane:</h4></html>");
+        deletePlaneRadioButton.setBackground(Color.DARK_GRAY);
+
+        deleteRowRadioButton = new JRadioButton("<html><style>h4{color:white;}</style><h4>Delete a Row:</h4></html>");
+        deleteRowRadioButton.setBackground(Color.DARK_GRAY);
+
+        deleteRowRadioButton.addActionListener(new DeleteRowActionListener());
+        deletePlaneRadioButton.addActionListener(new DeletePlaneActionListener());
+
+        ButtonGroup deleteButtonGroup = new ButtonGroup();
+        deleteButtonGroup.add(deletePlaneRadioButton);
+        deleteButtonGroup.add(deleteRowRadioButton);
+
+        JLabel uploadSequencesLabel = new JLabel("<html><style>h3{color:white;}</style><h3>Upload DNA Sequences:</h3></html>");
+
+        ImageIcon uploadSequencesIcon = new ImageIcon("icons/csv.png");
+        JButton uploadSequencesButton = new JButton("<html><style>h4{color:white;}</style><h4>Choose File</h4></html>",uploadSequencesIcon);
+        uploadSequencesButton.setBackground(Color.DARK_GRAY);
+        uploadSequencesButton.addActionListener(new UploadSequenceActionListener());
+
+        JCheckBox boundaryBoxCheckBox = new JCheckBox("<html><style>h3{color:white;}</style><h3>Enable boundary bricks</h3></html>");
+        boundaryBoxCheckBox.setBackground(Color.DARK_GRAY);
+
+        JCheckBox xMinPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>X Min Plane</h4></html>");
+        xMinPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
+        JCheckBox xMaxPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>X Max Plane</h4></html>");
+        xMaxPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
+        JCheckBox yMinPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Y Min Plane</h4></html>");
+        yMinPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
+        JCheckBox yMaxPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Y Max Plane</h4></html>");
+        yMaxPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
+
+        JCheckBox protectorBoxCheckBox = new JCheckBox("<html><style>h3{color:white;}</style><h3>Enable protector bricks</h3></html>");
+        protectorBoxCheckBox.setBackground(Color.DARK_GRAY);
+
+        JCheckBox zMinPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Z Min Plane</h4></html>");
+        zMinPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
+        JCheckBox zMaxPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Z Max Plane</h4></html>");
+        zMaxPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
+
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=0;
+        rightJToolBar.add(multibleDeletionLabel,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=1;
+        rightJToolBar.add(deletePlaneRadioButton,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=2;
+        rightJToolBar.add(deleteRowRadioButton,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=3;
+        rightJToolBar.add(uploadSequencesLabel,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=4;
+        rightJToolBar.add(uploadSequencesButton,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=5;
+        rightJToolBar.add(boundaryBoxCheckBox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=6;
+        rightJToolBar.add(xMinPlaneBoundaryCheckbox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=7;
+        rightJToolBar.add(xMaxPlaneBoundaryCheckbox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=8;
+        rightJToolBar.add(yMinPlaneBoundaryCheckbox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=9;
+        rightJToolBar.add(yMaxPlaneBoundaryCheckbox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=10;
+        rightJToolBar.add(protectorBoxCheckBox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=11;
+        rightJToolBar.add(zMinPlaneProtectorCheckbox,gridBagConstraints);
+
+        gridBagConstraints.gridx=0;
+        gridBagConstraints.gridy=12;
+        rightJToolBar.add(zMaxPlaneProtectorCheckbox,gridBagConstraints);
+
+        rightJToolBar.setVisible(false);
+
+
+        //Initialize bottomRightJPanel here for its functionalities
     }
     public void createAndShowGUI(){
         //add ToolBar
-        JToolBar toolBar=new JToolBar("Quick Links");
-        toolBar.setBackground(Color.DARK_GRAY);
-        this.add(toolBar,BorderLayout.NORTH);
+        JToolBar topJToolBar=new JToolBar("Quick Links");
 
+        topJToolBar.setBackground(Color.DARK_GRAY);
+        this.add(topJToolBar,BorderLayout.NORTH);
         ImageIcon newi = new ImageIcon("icons/new-canvas.png");
         ImageIcon estimate = new ImageIcon("icons/estimator.png");
         ImageIcon importData = new ImageIcon("icons/import.png");
@@ -168,6 +279,7 @@ public class MainFrame extends JFrame{
         ImageIcon SaveAsLATEX = new ImageIcon("icons/latex.png");
         ImageIcon viewGraph = new ImageIcon("icons/analysis.png");
         ImageIcon SaveAsCSV = new ImageIcon("icons/csv.png");
+        ImageIcon advancedoptionIcon = new ImageIcon("icons/simulate.png");
         ImageIcon visualize = new ImageIcon("icons/visualize.png");
         ImageIcon ytube = new ImageIcon("icons/youtube.png");
         ImageIcon twit = new ImageIcon("icons/twitter.png");
@@ -180,6 +292,9 @@ public class MainFrame extends JFrame{
 
         JButton newButton = new JButton(newi);
         newButton.setBackground(Color.DARK_GRAY);
+
+        advancedOptionButton = new JButton(advancedoptionIcon);
+        advancedOptionButton.setBackground(Color.DARK_GRAY);
 
         estimateButton = new JButton(estimate);
         estimateButton.setBackground(Color.DARK_GRAY);
@@ -243,55 +358,57 @@ public class MainFrame extends JFrame{
         aboutButton.setToolTipText("About 3DNA");
         feedbackButton.setToolTipText("3DNA Feedback Page");
         userManualButton.setToolTipText("3DNA User Manual");
+        advancedOptionButton.setToolTipText("Toggle Advanced Option Plane");
 
         //adding different buttons to the toolbar
-        toolBar.add(newButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(importButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(exportButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(latexButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(pdfButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(csvButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(estimateButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(80));
-        toolBar.addSeparator();
-        toolBar.add(graphButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(aboutButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(userManualButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(feedbackButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(demoButton);
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(80));
-        toolBar.addSeparator();
-        toolBar.add(fbButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(youtubeButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(quoraButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(twitterButton);
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.addSeparator();
-        toolBar.add(Box.createHorizontalStrut(10));
-        toolBar.add(visualizeButton);
+        topJToolBar.add(newButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(importButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(exportButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(latexButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(pdfButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(csvButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(estimateButton);
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(80));
+        topJToolBar.add(advancedOptionButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(graphButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(aboutButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(userManualButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(feedbackButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(demoButton);
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(80));
+        topJToolBar.addSeparator();
+        topJToolBar.add(fbButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(youtubeButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(quoraButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(twitterButton);
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.addSeparator();
+        topJToolBar.add(Box.createHorizontalStrut(10));
+        topJToolBar.add(visualizeButton);
 
         FalseEnableContent();
 
@@ -313,6 +430,13 @@ public class MainFrame extends JFrame{
         aboutButton.addActionListener(new AboutActionListener());
         demoButton.addActionListener(new ProductDemoActionListener());
         graphButton.addActionListener(new ViewGraphActionListener("3DNA Domain Analysis"));
+        advancedOptionButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+               System.out.println("Advanced panel has been called");
+               rightJToolBar.setVisible(true);
+            }
+        });
     }
 
     public static void FalseEnableContent(){
@@ -329,8 +453,10 @@ public class MainFrame extends JFrame{
         rightButton.setEnabled(false);
         visualizeButton.setEnabled(false);
         resetButton.setEnabled(false);
+
         graphButton.setEnabled(false);
         undoButton.setEnabled(false);
+
     }
 
     public static void TrueEnableContent(){
@@ -348,6 +474,7 @@ public class MainFrame extends JFrame{
         visualizeButton.setEnabled(true);
         resetButton.setEnabled(true);
         undoButton.setEnabled(true);
+        leftJToolBar.setVisible(true);
     }
 
     public static void enableGraph(){
@@ -540,9 +667,12 @@ public class MainFrame extends JFrame{
 
     public static JSplitPane vPanel;
     public static JSplitPane hPanel;
-    public static JPanel leftJPanel;
+    public static JToolBar leftJToolBar;
+    public static JToolBar rightJToolBar;
     public static JPanel topRightJPanel;
     public static JPanel bottomRightJPanel;
+    public static JRadioButton deleteRowRadioButton;
+    public static JRadioButton deletePlaneRadioButton;
     public static String osName = System.getProperty("os.name");
     public static File configFile;
     public static MainFrame mainFrame;
@@ -565,6 +695,7 @@ public class MainFrame extends JFrame{
     public static JButton resetButton;
     public static JButton latexButton;
     public static JButton graphButton;
+    public static JButton advancedOptionButton;
     public static boolean[][][]StoreCoordinates=new boolean[20][20][20];
     public static int height=0; //height of the canvas
     public static int width=0;  //width of the canvas

@@ -4,23 +4,17 @@
  */
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
 import javax.media.j3d.*;
 import javax.swing.*;
 import javax.vecmath.*;
-
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
-import com.sun.j3d.utils.geometry.ColorCube;
 import com.sun.j3d.utils.picking.PickCanvas;
 import com.sun.j3d.utils.picking.PickResult;
 import com.sun.j3d.utils.universe.SimpleUniverse;
 import com.sun.j3d.utils.universe.ViewingPlatform;
-import sun.applet.Main;
 
 public class CanvasActionListener extends MouseAdapter implements ActionListener {
     static int pressed=0;
@@ -39,6 +33,13 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
     public static float canvasy;
     public static float canvasz;
     public static boolean isDimensionEntered=false;
+    public static final float[] colorLightGray = {
+            0.8f, 0.8f, 0.8f,
+            0.8f, 0.8f, 0.8f,
+            0.8f, 0.8f, 0.8f,
+            0.8f, 0.8f, 0.8f
+    };
+    public static ArrayList<DNAColorCubeArray> colorCubeArrayList;
 
     @Override
     public void actionPerformed(ActionEvent arg0) {
@@ -184,29 +185,30 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
 
         scene = createSceneGraph();
         //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
-        canvasx = 5.0f;
-        canvasy = 5.0f;
-        canvasz = 40.0f;
+        canvasx = 0.0f;
+        canvasy = 0.0f;
+        canvasz = 2.0f;
 
         ViewingPlatform viewingPlatform = CanvasActionListener.simpleU.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
+
+        /*//adding Dark Slate Gray as Simple Universe Color
         BranchGroup backgroundBranchGroup = new BranchGroup();
-        //adding Dark Slate Gray as Simple Universe Color
-        Background background = new Background(new Color3f(47/255f,79/255f,79/255f));
+        Background background = new Background(new Color3f(1f,1f,1f));
         BoundingSphere sphere = new BoundingSphere(new Point3d(0,0,0), 100000);
         background.setApplicationBounds(sphere);
         backgroundBranchGroup.addChild(background);
-        viewingPlatform.addChild(backgroundBranchGroup);
+        viewingPlatform.addChild(backgroundBranchGroup);*/
 
         TransformGroup View_TransformGroup = viewingPlatform.getMultiTransformGroup().getTransformGroup(0); // get the TransformGroup associated
 
         Transform3D View_Transform3D = new Transform3D();    // create a Transform3D for the ViewingPlatform
         View_TransformGroup.getTransform(View_Transform3D); // get the current 3d from the ViewingPlatform
 
-        View_Transform3D.setTranslation(new Vector3f(canvasx, canvasy, canvasz)); // set 3d to  x=0, y=-1, z= 5
+        View_Transform3D.setTranslation(new Vector3f(canvasx, canvasy, canvasz)); // set 3d to  x=0, y=0, z=2
         View_TransformGroup.setTransform(View_Transform3D);  // assign Transform3D to ViewPlatform
 
         // this will optimize your SceneGraph, not necessary, but it will allow your program to run faster.
-        scene.compile();
+        //scene.compile();
         simpleU.addBranchGraph(scene); //add your SceneGraph to the SimpleUniverse
 
         //We now add a pick canvas so that we can get
@@ -217,8 +219,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
 
     public static BranchGroup createSceneGraph() {
 
-        // This BranchGroup is the root of the SceneGraph, 'objRoot' is the name I use,
-        // and it is typically the standard name for it, but can be named anything.
+        // This BranchGroup is the root of the SceneGraph,
         objRoot = new BranchGroup();
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
@@ -226,11 +227,11 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
         objRoot.setCapability(BranchGroup.ALLOW_DETACH);
         objRoot.setCapability(Node.ENABLE_PICK_REPORTING);
-        getNewBoxPlane();//creates a plane of cubes, planes can be combined to form the full fledged canvas.
+        getNewBox();//creates a plane of cubes, planes can be combined to form the full fledged canvas.
 
         return objRoot;
     }
-    public static void getNewBoxPlane(){
+    public static void getNewBox(){
         masterTrans=new TransformGroup();
         masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
@@ -244,19 +245,30 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     for (int k=0;k<MainFrame.depth;k++)
                         MainFrame.StoreCoordinates[i][j][k]=false;
         }
-        float positionOffset=2.105f;
+        float positionOffset=0.15f;
+        //initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
+        colorCubeArrayList = new ArrayList<DNAColorCubeArray>();
 
         for(int i=0;i<MainFrame.width;i++){
             for(int j=0;j<MainFrame.height;j++){
                 for (int k=0;k<MainFrame.depth;k++){
-                    //if(MainFrame.StoreCoordinates[i][j][k]==false){
-                    DNAColorCube c1 = new DNAColorCube();
+
+                    DNAColorCube c1 = new DNAColorCube(0.05f);
                     c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
                     c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
                     c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
+                    c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
                     c1.setCapability(Node.ENABLE_PICK_REPORTING);
-                    c1.setCordinate(i, j-MainFrame.height+1, k-MainFrame.depth+1);
+
+                    Appearance ap = new Appearance();
+                    TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.15f);
+                    ap.setTransparencyAttributes( transparencyAttributes );
+
+                    c1.setAppearance(ap);
+                    c1.setCordinate(i, j - MainFrame.height + 1, k - MainFrame.depth + 1);
                     tg = new TransformGroup();
+                    tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
+                    tg.setCapability(Node.ALLOW_PICKABLE_READ);
                     tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
                     tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
                     transform = new Transform3D();
@@ -265,11 +277,12 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     tg.addChild(c1);
                     tg.setTransform(transform);
                     masterTrans.addChild(tg);
-
+                    // add the DNAColorCube to the DNAColorCubeArray so that it can be accessed later
+                    colorCubeArrayList.add(new DNAColorCubeArray(c1,i, j - MainFrame.height + 1, k - MainFrame.depth + 1));
                 }
             }
         }
-
+        /*
         //Adding molecular scale and axis to the master TransformGroup
         LineArray xAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray yAxisLineArray = new LineArray(2, LineArray.COORDINATES);
@@ -298,51 +311,182 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         masterTrans.addChild(new Shape3D(labelXText3D));
         masterTrans.addChild(new Shape3D(labelYText3D));
         masterTrans.addChild(new Shape3D(labelZText3D));
-
+        */
         objRoot.addChild(masterTrans);
         rotateBehaviour=new MouseRotate();
         rotateBehaviour.setTransformGroup(masterTrans);
         rotateBehaviour.setSchedulingBounds(new BoundingSphere());
         masterTrans.addChild(rotateBehaviour);
-
     }
+
     public void destroy() { // this function will allow Java3D to clean up upon quiting
         simpleU.removeAllLocales();
     }
     public void importingFunction(){
         pressed=0;
     }
-    public void mouseClicked(MouseEvent e)
-    {
+    public void mouseClicked(MouseEvent e){
         MainFrame.isPDFSaved=false;
         MainFrame.isCSVSaved=false;
         pickCanvas.setShapeLocation(e);
-        PickResult result = pickCanvas.pickClosest();
-        if (result == null) {
-            System.out.println("Nothing picked");
+        PickResult mouseClickResult = pickCanvas.pickClosest();
+        if (mouseClickResult == null) {
             int xCord=e.getX();
             int yCord=e.getY();
             System.out.println("Nothing selected at xCord "+xCord+" yCord"+yCord);
 
         }
         else {
-            DNAColorCube s = (DNAColorCube)result.getNode(PickResult.SHAPE3D);
-            if (s != null) {
-                MainFrame.StoreCoordinates[s.getX()][(s.getY()*-1)][(s.getZ()*-1)]=true;
-                lastx=s.getX();
-                lasty=s.getY();
-                lastz=s.getZ();
-                System.out.println(s.getClass().getName());
-                System.out.println("X cordinate"+s.getX());
-                System.out.println("Y cordinate"+s.getY());
-                System.out.println("Z cordinate"+s.getZ());
+            DNAColorCube pickedCube = (DNAColorCube)mouseClickResult.getNode(PickResult.SHAPE3D);
+            if (pickedCube != null) {
+                MainFrame.StoreCoordinates[pickedCube.getX()][(pickedCube.getY()*-1)][(pickedCube.getZ()*-1)]=true;
+                lastx=pickedCube.getX();
+                lasty=pickedCube.getY();
+                lastz=pickedCube.getZ();
+                System.out.println(pickedCube.getClass().getName());
+                System.out.println("X cordinate"+pickedCube.getX());
+                System.out.println("Y cordinate"+pickedCube.getY());
+                System.out.println("Z cordinate"+pickedCube.getZ());
                 QuadArray cube = new QuadArray(24, QuadArray.COORDINATES|QuadArray.COLOR_3);
-                s.setGeometry(cube);
+                pickedCube.setGeometry(cube);
             }
             else{
                 System.out.println("null");
             }
         }
     }
+    public static void deletePlane(String selectedPlane, int selectedPlaneNumber){
+        char planeForDeletion=0;
+        if(selectedPlane == "X Plane")
+            planeForDeletion= 'X';
+        if(selectedPlane == "Y Plane")
+            planeForDeletion= 'Y';
+        if(selectedPlane == "Z Plane")
+            planeForDeletion= 'Z';
+        deleteSelectedCanvasPlane(planeForDeletion,selectedPlaneNumber);
+    }
+    public static void deleteRow(String selectedPlane, int selectedPlaneNumber, int minX, int minY, int minZ, int maxX, int maxY, int maxZ){
+        char planeForDeletion=0;
+        if(selectedPlane == "X Plane")
+            planeForDeletion= 'X';
+        if(selectedPlane == "Y Plane")
+            planeForDeletion= 'Y';
+        if(selectedPlane == "Z Plane")
+            planeForDeletion= 'Z';
+        deleteSelectedCanvasRow(planeForDeletion,selectedPlaneNumber, minX, minY, minZ, maxX, maxY, maxZ);
+    }
 
+    public static void deleteSelectedCanvasRow(char selectedPlaneForRowDeletion, int selectedPlaneNumber, int minX, int minY, int minZ, int maxX, int maxY, int maxZ){
+        Appearance ap = new Appearance();
+        TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,1f);
+        ap.setTransparencyAttributes( transparencyAttributes );
+        switch (selectedPlaneForRowDeletion){
+            case 'X':
+                System.out.println("X has been called");
+                System.out.println("Selected Plane Number"+selectedPlaneNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if(colorCubeArrayList.get(i).xCord==selectedPlaneNumber) {
+                        if(minY==maxY){
+                            if((colorCubeArrayList.get(i).zCord*-1>=minZ||colorCubeArrayList.get(i).zCord*-1<=maxZ) && (colorCubeArrayList.get(i).yCord*-1==maxY)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                        if(minZ==maxZ){
+                            if((colorCubeArrayList.get(i).yCord*-1>=minY||colorCubeArrayList.get(i).yCord*-1<=maxY) && (colorCubeArrayList.get(i).zCord*-1==maxZ)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'Y':
+                System.out.println("Y has been called");
+                System.out.println("Selected Plane Number"+selectedPlaneNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if (colorCubeArrayList.get(i).yCord == -1*selectedPlaneNumber) {
+                        if(minX==maxX){
+                            if((colorCubeArrayList.get(i).zCord*-1>=minZ||colorCubeArrayList.get(i).zCord*-1<=maxZ) && (colorCubeArrayList.get(i).xCord*-1==maxX)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                        if(minZ==maxZ){
+                            if((colorCubeArrayList.get(i).xCord*-1>=minX||colorCubeArrayList.get(i).xCord*-1<=maxX) && (colorCubeArrayList.get(i).zCord*-1==maxZ)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                    }
+                }
+                break;
+            case 'Z':
+                System.out.println("Z has been called");
+                System.out.println("Selected Plane Number"+selectedPlaneNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if((colorCubeArrayList.get(i).yCord*-1>=minY||colorCubeArrayList.get(i).yCord*-1<=maxY) && (colorCubeArrayList.get(i).xCord*-1>=minX||colorCubeArrayList.get(i).xCord*-1<=maxX)){
+                        if(minX==maxX){
+                            if((colorCubeArrayList.get(i).yCord*-1>=minY||colorCubeArrayList.get(i).yCord*-1<=maxY) && (colorCubeArrayList.get(i).xCord*-1==maxX)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                        if(minZ==maxZ){
+                            if((colorCubeArrayList.get(i).xCord*-1>=minX||colorCubeArrayList.get(i).xCord*-1<=maxX) && (colorCubeArrayList.get(i).yCord*-1==maxY)){
+                                DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                                pickedCube.setAppearance(ap);
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid String has been passed");
+        }
+    }
+
+    public static void deleteSelectedCanvasPlane(char plane, int planeNumber){
+        Appearance ap = new Appearance();
+        TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,1f);
+        ap.setTransparencyAttributes( transparencyAttributes );
+        switch (plane){
+            case 'X':
+                System.out.println("X has been called");
+                System.out.println("Selected Plane Number"+planeNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if(colorCubeArrayList.get(i).xCord==planeNumber) {
+                        DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                        pickedCube.setAppearance(ap);
+                    }
+                }
+                break;
+            case 'Y':
+                System.out.println("Y has been called");
+                System.out.println("Selected Plane Number"+planeNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if (colorCubeArrayList.get(i).yCord == -1*planeNumber) {
+                        DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                        pickedCube.setAppearance(ap);
+                    }
+                }
+                break;
+            case 'Z':
+                System.out.println("Z has been called");
+                System.out.println("Selected Plane Number"+planeNumber);
+                for(int i=0; i <colorCubeArrayList.size(); i++) {
+                    if (colorCubeArrayList.get(i).zCord == -1*  planeNumber) {
+                        DNAColorCube pickedCube = colorCubeArrayList.get(i).canvasDNAColorCube;
+                        pickedCube.setAppearance(ap);
+                    }
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid String has been passed");
+        }
+
+    }
+    public static void getDNAColorCube(int x, int y, int z){
+
+    }
 }
