@@ -61,8 +61,8 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                 MainFrame.isProjectCreated=true;
             }
             if(MainFrame.isProjectCreated){
-                final JFrame dimensionFrame = new JFrame("3DNA Dimensions");
-                ImageIcon img = new ImageIcon("images/logod.png");
+                final JFrame dimensionFrame = new JFrame("3DNA Dimensions"+MainFrame.projectName);
+                ImageIcon img = new ImageIcon("icons/logod.png");
                 Image imag=img.getImage();
                 dimensionFrame.setIconImage(imag);
                 dimensionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
