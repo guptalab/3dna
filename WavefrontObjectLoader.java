@@ -131,7 +131,7 @@ public class WavefrontObjectLoader extends Applet {
         lightForDomain12.addScope(domain12CoverCylinderTransformGroup);
 
         objRoot.addChild (lightForDomain12);
-        //objRoot.addChild(domainBlock12tg);
+        objRoot.addChild(domainBlock12tg);
 
 
         //Code for Domain34
@@ -204,7 +204,7 @@ public class WavefrontObjectLoader extends Applet {
         lightForDomain34.addScope(domain34CoverCylinderTransformGroup);
 
         objRoot.addChild (lightForDomain34);
-        //objRoot.addChild(domainBlock34tg);
+        objRoot.addChild(domainBlock34tg);
 
 
         //Code for Domain1234(FullBrick)
