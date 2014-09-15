@@ -14,7 +14,7 @@ public class UndoActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //To change body of implemented methods use File | Settings | File Templates.
         if(MainFrame.isImported){
-            MainFrame.StoreCoordinates[ImportActionListener.lastx][(ImportActionListener.lasty*-1)][(ImportActionListener.lastz*-1)]=false;
+            MainFrame.deletedCoordinates[ImportActionListener.lastx][(ImportActionListener.lasty*-1)][(ImportActionListener.lastz*-1)]=false;
             DNAColorCube c1 = new DNAColorCube(0.05f);
             c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
             c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
@@ -36,7 +36,7 @@ public class UndoActionListener implements ActionListener {
             ImportActionListener.masterTrans.addChild(undoGroup);
         }
         else{
-            MainFrame.StoreCoordinates[CanvasActionListener.lastx][(CanvasActionListener.lasty*-1)][(CanvasActionListener.lastz*-1)]=false;
+            MainFrame.deletedCoordinates[CanvasActionListener.lastx][(CanvasActionListener.lasty*-1)][(CanvasActionListener.lastz*-1)]=false;
             DNAColorCube c1 = new DNAColorCube(0.05f);
             c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
             c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);

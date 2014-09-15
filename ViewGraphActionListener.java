@@ -82,18 +82,18 @@ public class ViewGraphActionListener extends JFrame implements ActionListener {
         domainCount=0;
 
 
-        for (int i = 0; i < SaveFinalSequences.FinalData.size(); i++) {
-            if (SaveFinalSequences.FinalData.get(i).Domain1 != null)
+        for (int i = 0; i < SaveFinalSequences.finalData.size(); i++) {
+            if (SaveFinalSequences.finalData.get(i).Domain1 != null)
                 domainCount++;
-            if (SaveFinalSequences.FinalData.get(i).Domain2 != null)
+            if (SaveFinalSequences.finalData.get(i).Domain2 != null)
                 domainCount++;
-            if (SaveFinalSequences.FinalData.get(i).Domain3 != null)
+            if (SaveFinalSequences.finalData.get(i).Domain3 != null)
                 domainCount++;
-            if (SaveFinalSequences.FinalData.get(i).Domain4 != null)
+            if (SaveFinalSequences.finalData.get(i).Domain4 != null)
                 domainCount++;
-            if (SaveFinalSequences.FinalData.get(i).Domain5 != null)
+            if (SaveFinalSequences.finalData.get(i).Domain5 != null)
                 domainCount++;
-            if (SaveFinalSequences.FinalData.get(i).Domain6 != null)
+            if (SaveFinalSequences.finalData.get(i).Domain6 != null)
                 domainCount++;
         }
 
@@ -161,33 +161,33 @@ public class ViewGraphActionListener extends JFrame implements ActionListener {
         eightBPSimilarity = 0;
         sevenBPSimilarity = 0;
         sixBPSimilarity = 0;
-        int size=SaveFinalSequences.FinalData.size()*4;
+        int size=SaveFinalSequences.finalData.size()*4;
         String[] Domains = new String[size];
         int counter = 0;
 
-        for (int i = 0; i < SaveFinalSequences.FinalData.size(); i++) {
-            if (SaveFinalSequences.FinalData.get(i).Domain1 != null && !(SaveFinalSequences.FinalData.get(i).Domain1.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain1;
+        for (int i = 0; i < SaveFinalSequences.finalData.size(); i++) {
+            if (SaveFinalSequences.finalData.get(i).Domain1 != null && !(SaveFinalSequences.finalData.get(i).Domain1.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain1;
                 counter++;
             }
-            if (SaveFinalSequences.FinalData.get(i).Domain2 != null && !(SaveFinalSequences.FinalData.get(i).Domain2.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain2;
+            if (SaveFinalSequences.finalData.get(i).Domain2 != null && !(SaveFinalSequences.finalData.get(i).Domain2.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain2;
                 counter++;
             }
-            if (SaveFinalSequences.FinalData.get(i).Domain3 != null && !(SaveFinalSequences.FinalData.get(i).Domain3.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain3;
+            if (SaveFinalSequences.finalData.get(i).Domain3 != null && !(SaveFinalSequences.finalData.get(i).Domain3.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain3;
                 counter++;
             }
-            if (SaveFinalSequences.FinalData.get(i).Domain4 != null && !(SaveFinalSequences.FinalData.get(i).Domain4.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain4;
+            if (SaveFinalSequences.finalData.get(i).Domain4 != null && !(SaveFinalSequences.finalData.get(i).Domain4.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain4;
                 counter++;
             }
-            if (SaveFinalSequences.FinalData.get(i).Domain5 != null && !(SaveFinalSequences.FinalData.get(i).Domain5.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain5;
+            if (SaveFinalSequences.finalData.get(i).Domain5 != null && !(SaveFinalSequences.finalData.get(i).Domain5.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain5;
                 counter++;
             }
-            if (SaveFinalSequences.FinalData.get(i).Domain6 != null && !(SaveFinalSequences.FinalData.get(i).Domain6.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.FinalData.get(i).Domain6;
+            if (SaveFinalSequences.finalData.get(i).Domain6 != null && !(SaveFinalSequences.finalData.get(i).Domain6.equals("TTTTTTTT"))) {
+                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain6;
                 counter++;
             }
         }

@@ -41,7 +41,7 @@ public class ExportActionListener implements ActionListener {
             for(int i=0;i<MainFrame.height;i++){
                 for(int j=0;j<MainFrame.width;j++){
                     for(int k=0;k<MainFrame.depth;k++){
-                        if(MainFrame.StoreCoordinates[i][j][k]==false) {
+                        if(MainFrame.deletedCoordinates[i][j][k]==false) {
                             bufferedWriter.write(String.valueOf(i));
                             bufferedWriter.write("\n");
                             bufferedWriter.write(String.valueOf(j));

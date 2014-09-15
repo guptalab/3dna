@@ -101,7 +101,7 @@ public class ImportActionListener extends MouseAdapter implements ActionListener
                 for(int i=0;i<MainFrame.width;i++)
                     for(int j=0;j<MainFrame.height;j++)
                         for (int k=0;k<MainFrame.depth;k++)
-                            MainFrame.StoreCoordinates[i][j][k]=false;
+                            MainFrame.deletedCoordinates[i][j][k]=false;
                 /*st=br.readLine();
                 x=Integer.parseInt(st);
                 st=br.readLine();
@@ -118,7 +118,7 @@ public class ImportActionListener extends MouseAdapter implements ActionListener
                     st=br.readLine();
                     //if(st!=null)
                         z=Integer.parseInt(st);
-                    MainFrame.StoreCoordinates[x][y][z]=true;
+                    MainFrame.deletedCoordinates[x][y][z]=true;
                 }
                 MainFrame.isImported=true;
                 System.out.println("Canvas height: "+MainFrame.height);
@@ -202,7 +202,7 @@ public class ImportActionListener extends MouseAdapter implements ActionListener
         for(int i=0;i<MainFrame.width;i++){
             for(int j=0;j<MainFrame.height;j++){
                 for (int k=0;k<MainFrame.depth;k++){
-                    if(MainFrame.StoreCoordinates[i][j][k]==true){
+                    if(MainFrame.deletedCoordinates[i][j][k]==true){
                         DNAColorCube c1 = new DNAColorCube(0.05f);
                         c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
                         c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
@@ -255,7 +255,7 @@ public class ImportActionListener extends MouseAdapter implements ActionListener
         else {
             DNAColorCube s = (DNAColorCube)result.getNode(PickResult.SHAPE3D);
             if (s != null) {
-                MainFrame.StoreCoordinates[s.getX()][(s.getY()*-1)][(s.getZ()*-1)]=true;
+                MainFrame.deletedCoordinates[s.getX()][(s.getY()*-1)][(s.getZ()*-1)]=true;
                 lastx=s.getX();
                 lasty=s.getY();
                 lastz=s.getZ();

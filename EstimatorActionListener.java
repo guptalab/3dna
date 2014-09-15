@@ -6,11 +6,11 @@ import javax.swing.JOptionPane;
 
 public class EstimatorActionListener implements ActionListener {
 
-    public CoordinatesSeqMap c;
-    static ArrayList<VoxelToBrick> DNASequenceData=SaveFinalSequences.FinalData;
+    public CoordinatesSequenceMap c;
+    static ArrayList<VoxelToBrick> DNASequenceData=SaveFinalSequences.finalData;
     @Override
     public void actionPerformed(ActionEvent e) {
-        c=new CoordinatesSeqMap();
+        c=new CoordinatesSequenceMap();
         String fn=JOptionPane.showInputDialog(null, "Enter cost for a base (USD): ", "3DNA Cost Estimator", JOptionPane.QUESTION_MESSAGE)  ;
         float n1=Float.parseFloat(fn);
         int domainCount=0;

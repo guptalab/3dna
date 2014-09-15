@@ -353,7 +353,7 @@ public class MainFrame extends JFrame{
         pdfButton.setToolTipText("Save as PDF");
         graphButton.setToolTipText("3DNA domain analysis");
         csvButton.setToolTipText("Save as .csv");
-        visualizeButton.setToolTipText("visualize");
+        visualizeButton.setToolTipText("Visualize Shape");
         demoButton.setToolTipText("Software Demo");
         aboutButton.setToolTipText("About 3DNA");
         feedbackButton.setToolTipText("3DNA Feedback Page");
@@ -370,8 +370,6 @@ public class MainFrame extends JFrame{
         topJToolBar.add(exportButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
         topJToolBar.addSeparator();
-        topJToolBar.add(Box.createHorizontalStrut(10));
-        topJToolBar.add(latexButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
         topJToolBar.add(pdfButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
@@ -414,8 +412,7 @@ public class MainFrame extends JFrame{
 
         estimateButton.addActionListener(new EstimatorActionListener());
         newButton.addActionListener(new CanvasActionListener());
-		latexButton.addActionListener(new SaveLatexActionListener());
-        pdfButton.addActionListener(new SavePDFListener());
+		pdfButton.addActionListener(new SavePDFListener());
         csvButton.addActionListener(new SaveDetailedDataListener());
         importButton.addActionListener(new ImportActionListener());
         exportButton.addActionListener(new ExportActionListener());
@@ -423,8 +420,7 @@ public class MainFrame extends JFrame{
         fbButton.addActionListener(new FacebookActionListener());
         twitterButton.addActionListener(new TwitterActionListener());
         quoraButton.addActionListener(new QuoraActionListener());
-        //visualizeButton.addActionListener(new VisualizeActionListener());
-        //visualizeButton.addActionListener(new WavefrontObjectLoader());
+        visualizeButton.addActionListener(new VisualizeActionListener());
         userManualButton.addActionListener(new UserManualActionListener());
         feedbackButton.addActionListener(new ProductFeedbackActionListener());
         aboutButton.addActionListener(new AboutActionListener());
@@ -441,8 +437,7 @@ public class MainFrame extends JFrame{
 
     public static void FalseEnableContent(){
         exportButton.setEnabled(false);
-        latexButton.setEnabled(false);
-		csvButton.setEnabled(false);
+        csvButton.setEnabled(false);
         pdfButton.setEnabled(false);
         estimateButton.setEnabled(false);
         zoomInButton.setEnabled(false);
@@ -451,7 +446,6 @@ public class MainFrame extends JFrame{
         downButton.setEnabled(false);
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
-        visualizeButton.setEnabled(false);
         resetButton.setEnabled(false);
 
         graphButton.setEnabled(false);
@@ -461,8 +455,7 @@ public class MainFrame extends JFrame{
 
     public static void TrueEnableContent(){
         exportButton.setEnabled(true);
-		latexButton.setEnabled(true);
-        csvButton.setEnabled(true);
+		csvButton.setEnabled(true);
         pdfButton.setEnabled(true);
         estimateButton.setEnabled(true);
         zoomInButton.setEnabled(true);
@@ -471,7 +464,6 @@ public class MainFrame extends JFrame{
         downButton.setEnabled(true);
         leftButton.setEnabled(true);
         rightButton.setEnabled(true);
-        visualizeButton.setEnabled(true);
         resetButton.setEnabled(true);
         undoButton.setEnabled(true);
         leftJToolBar.setVisible(true);
@@ -696,7 +688,7 @@ public class MainFrame extends JFrame{
     public static JButton latexButton;
     public static JButton graphButton;
     public static JButton advancedOptionButton;
-    public static boolean[][][]StoreCoordinates=new boolean[20][20][20];
+    public static boolean[][][]deletedCoordinates=new boolean[20][20][20];
     public static int height=0; //height of the canvas
     public static int width=0;  //width of the canvas
     public static int depth=0;  //depth of the canvas
@@ -708,4 +700,10 @@ public class MainFrame extends JFrame{
     public static boolean isCSVSaved=false;
     public static int GClowerLimit=6;
     public static int GCupperLimit=10;
+    public static boolean isMinZProtectorPlaneEnabled = true;
+    public static boolean isMaxZProtectorPlaneEnabled = true;
+    public static boolean isMinXBoundaryPlaneEnabled = true;
+    public static boolean isMinYBoundaryPlaneEnabled = true;
+    public static boolean isMaxXBoundaryPlaneEnabled = true;
+    public static boolean isMaxYBoundaryPlaneEnabled = true;
 }

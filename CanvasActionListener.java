@@ -61,8 +61,8 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                 MainFrame.isProjectCreated=true;
             }
             if(MainFrame.isProjectCreated){
-                final JFrame dimensionFrame = new JFrame("3DNA Dimensions");
-                ImageIcon img = new ImageIcon("images/logod.png");
+                final JFrame dimensionFrame = new JFrame("3DNA Dimensions"+MainFrame.projectName);
+                ImageIcon img = new ImageIcon("icons/logod.png");
                 Image imag=img.getImage();
                 dimensionFrame.setIconImage(imag);
                 dimensionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -147,8 +147,8 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                             dimensionFrame.dispose();
                             for(int i=0;i<MainFrame.width;i++)
                                 for(int j=0;j<MainFrame.height;j++)
-                                    for (int k=0;k<MainFrame.depth;k++)
-                                        MainFrame.StoreCoordinates[i][j][k]=false;
+                                    for (int k=0;k<=MainFrame.depth;k++)
+                                        MainFrame.deletedCoordinates[i][j][k]=false;
 
                             createCanvas();
                         }
@@ -187,7 +187,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
         canvasx = 0.0f;
         canvasy = 0.0f;
-        canvasz = 5.0f;
+        canvasz = 2.0f;
 
         ViewingPlatform viewingPlatform = CanvasActionListener.simpleU.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
 
@@ -242,10 +242,10 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         if(pressed==0){
             for(int i=0;i<MainFrame.width;i++)
                 for(int j=0;j<MainFrame.height;j++)
-                    for (int k=0;k<MainFrame.depth;k++)
-                        MainFrame.StoreCoordinates[i][j][k]=false;
+                    for (int k=0;k<=MainFrame.depth;k++)
+                        MainFrame.deletedCoordinates[i][j][k]=false;
         }
-        float positionOffset=0.105f;
+        float positionOffset=0.15f;
         //initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
         colorCubeArrayList = new ArrayList<DNAColorCubeArray>();
 
@@ -259,6 +259,12 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
                     c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
                     c1.setCapability(Node.ENABLE_PICK_REPORTING);
+
+                    Appearance ap = new Appearance();
+                    TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.15f);
+                    ap.setTransparencyAttributes( transparencyAttributes );
+
+                    c1.setAppearance(ap);
                     c1.setCordinate(i, j - MainFrame.height + 1, k - MainFrame.depth + 1);
                     tg = new TransformGroup();
                     tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
@@ -276,8 +282,8 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                 }
             }
         }
-
-        //Adding molecular scale and axis to the master TransformGroup
+    	
+	//Adding molecular scale and axis to the master TransformGroup
         LineArray xAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray yAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray zAxisLineArray = new LineArray(2, LineArray.COORDINATES);
@@ -294,14 +300,16 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         masterTrans.addChild(new Shape3D(xAxisLineArray));
         masterTrans.addChild(new Shape3D(yAxisLineArray));
         masterTrans.addChild(new Shape3D(zAxisLineArray));
+	
 
-        objRoot.addChild(masterTrans);
+	objRoot.addChild(masterTrans);
         rotateBehaviour=new MouseRotate();
         rotateBehaviour.setTransformGroup(masterTrans);
         rotateBehaviour.setSchedulingBounds(new BoundingSphere());
         masterTrans.addChild(rotateBehaviour);
     }
 
+    
     public void destroy() { // this function will allow Java3D to clean up upon quiting
         simpleU.removeAllLocales();
     }
@@ -322,7 +330,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         else {
             DNAColorCube pickedCube = (DNAColorCube)mouseClickResult.getNode(PickResult.SHAPE3D);
             if (pickedCube != null) {
-                MainFrame.StoreCoordinates[pickedCube.getX()][(pickedCube.getY()*-1)][(pickedCube.getZ()*-1)]=true;
+                MainFrame.deletedCoordinates[pickedCube.getX()][(pickedCube.getY()*-1)][(pickedCube.getZ()*-1)+1]=true;
                 lastx=pickedCube.getX();
                 lasty=pickedCube.getY();
                 lastz=pickedCube.getZ();
