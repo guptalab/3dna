@@ -61,8 +61,8 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                 MainFrame.isProjectCreated=true;
             }
             if(MainFrame.isProjectCreated){
-                final JFrame dimensionFrame = new JFrame("3DNA Dimensions"+MainFrame.projectName);
-                ImageIcon img = new ImageIcon("icons/logod.png");
+                final JFrame dimensionFrame = new JFrame("3DNA Dimensions");
+                ImageIcon img = new ImageIcon("images/logod.png");
                 Image imag=img.getImage();
                 dimensionFrame.setIconImage(imag);
                 dimensionFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -187,7 +187,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
         canvasx = 0.0f;
         canvasy = 0.0f;
-        canvasz = 2.0f;
+        canvasz = 5.0f;
 
         ViewingPlatform viewingPlatform = CanvasActionListener.simpleU.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
 
@@ -245,7 +245,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     for (int k=0;k<MainFrame.depth;k++)
                         MainFrame.StoreCoordinates[i][j][k]=false;
         }
-        float positionOffset=0.15f;
+        float positionOffset=0.105f;
         //initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
         colorCubeArrayList = new ArrayList<DNAColorCubeArray>();
 
@@ -259,12 +259,6 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
                     c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
                     c1.setCapability(Node.ENABLE_PICK_REPORTING);
-
-                    Appearance ap = new Appearance();
-                    TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.15f);
-                    ap.setTransparencyAttributes( transparencyAttributes );
-
-                    c1.setAppearance(ap);
                     c1.setCordinate(i, j - MainFrame.height + 1, k - MainFrame.depth + 1);
                     tg = new TransformGroup();
                     tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
@@ -282,36 +276,25 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                 }
             }
         }
-        /*
+
         //Adding molecular scale and axis to the master TransformGroup
         LineArray xAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray yAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray zAxisLineArray = new LineArray(2, LineArray.COORDINATES);
 
-        xAxisLineArray.setCoordinate(0, new Point3f(0.0f,(float)(MainFrame.height+2),(float)(MainFrame.depth+2)));
-        xAxisLineArray.setCoordinate(1, new Point3f(MainFrame.width+4,(float)(MainFrame.height+2),(float)(MainFrame.depth+2)));
+        xAxisLineArray.setCoordinate(0, new Point3f(0.0f-0.05f ,(2*MainFrame.height-1)*0.05f+0.05f/2 ,(2*MainFrame.depth-1)*0.05f+0.05f/2 ));
+        xAxisLineArray.setCoordinate(1, new Point3f((2.25f*MainFrame.width)*0.05f,(2*MainFrame.height-1)*0.05f+0.05f/2 ,(2*MainFrame.depth-1)*0.05f+0.05f/2 ));
 
-        yAxisLineArray.setCoordinate(0, new Point3f(0.0f,(float)(MainFrame.height+2),(float)(MainFrame.depth+2)));
-        yAxisLineArray.setCoordinate(1, new Point3f(0.0f,MainFrame.height*-1+(-1*2),(float)(MainFrame.depth+2)));
+        yAxisLineArray.setCoordinate(0, new Point3f(0.0f-0.05f ,(2*MainFrame.height-1)*0.05f+0.05f/2 ,(2*MainFrame.depth-1)*0.05f+0.05f/2));
+        yAxisLineArray.setCoordinate(1, new Point3f(0.0f-0.05f ,0.0f-0.20f,(2*MainFrame.depth-1)*0.05f+0.05f/2));
 
-        zAxisLineArray.setCoordinate(0, new Point3f(0.0f,(float)(MainFrame.height+2),(float)(MainFrame.depth+2)));
-        zAxisLineArray.setCoordinate(1, new Point3f(0.0f,(float)(MainFrame.height+2),MainFrame.depth*-1+(-1*2)));
+        zAxisLineArray.setCoordinate(0, new Point3f(0.0f-0.05f ,(2*MainFrame.height-1)*0.05f+0.05f/2 ,(2*MainFrame.depth-1)*0.05f+0.05f/2));
+        zAxisLineArray.setCoordinate(1, new Point3f(0.0f-0.05f ,(2*MainFrame.height-1)*0.05f+0.05f/2 ,0.0f-0.20f));
 
         masterTrans.addChild(new Shape3D(xAxisLineArray));
         masterTrans.addChild(new Shape3D(yAxisLineArray));
         masterTrans.addChild(new Shape3D(zAxisLineArray));
 
-        //Adding Text3D objects to label x,y and z axis
-        Font font=new Font("Label Font",Font.PLAIN,1);
-        Font3D labelAxisFont= new Font3D(font, new FontExtrusion());
-        Text3D labelXText3D = new Text3D(labelAxisFont, new String("x"), new Point3f(MainFrame.width+4,(float)(MainFrame.height+2),(float)(MainFrame.depth+2)));
-        Text3D labelYText3D = new Text3D(labelAxisFont, new String("y"), new Point3f(0.0f,MainFrame.height*-1+(-1*2),(float)(MainFrame.depth+2)));
-        Text3D labelZText3D = new Text3D(labelAxisFont, new String("z"), new Point3f(0.0f,(float)(MainFrame.height+2),MainFrame.depth*-1+(-1*2)));
-
-        masterTrans.addChild(new Shape3D(labelXText3D));
-        masterTrans.addChild(new Shape3D(labelYText3D));
-        masterTrans.addChild(new Shape3D(labelZText3D));
-        */
         objRoot.addChild(masterTrans);
         rotateBehaviour=new MouseRotate();
         rotateBehaviour.setTransformGroup(masterTrans);
