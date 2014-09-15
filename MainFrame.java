@@ -353,7 +353,7 @@ public class MainFrame extends JFrame{
         pdfButton.setToolTipText("Save as PDF");
         graphButton.setToolTipText("3DNA domain analysis");
         csvButton.setToolTipText("Save as .csv");
-        visualizeButton.setToolTipText("visualize");
+        visualizeButton.setToolTipText("Visualize Shape");
         demoButton.setToolTipText("Software Demo");
         aboutButton.setToolTipText("About 3DNA");
         feedbackButton.setToolTipText("3DNA Feedback Page");
@@ -423,8 +423,7 @@ public class MainFrame extends JFrame{
         fbButton.addActionListener(new FacebookActionListener());
         twitterButton.addActionListener(new TwitterActionListener());
         quoraButton.addActionListener(new QuoraActionListener());
-        //visualizeButton.addActionListener(new VisualizeActionListener());
-        //visualizeButton.addActionListener(new WavefrontObjectLoader());
+        visualizeButton.addActionListener(new VisualizeActionListener());
         userManualButton.addActionListener(new UserManualActionListener());
         feedbackButton.addActionListener(new ProductFeedbackActionListener());
         aboutButton.addActionListener(new AboutActionListener());
@@ -451,7 +450,6 @@ public class MainFrame extends JFrame{
         downButton.setEnabled(false);
         leftButton.setEnabled(false);
         rightButton.setEnabled(false);
-        visualizeButton.setEnabled(false);
         resetButton.setEnabled(false);
 
         graphButton.setEnabled(false);
@@ -471,7 +469,6 @@ public class MainFrame extends JFrame{
         downButton.setEnabled(true);
         leftButton.setEnabled(true);
         rightButton.setEnabled(true);
-        visualizeButton.setEnabled(true);
         resetButton.setEnabled(true);
         undoButton.setEnabled(true);
         leftJToolBar.setVisible(true);
