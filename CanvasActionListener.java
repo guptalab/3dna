@@ -245,7 +245,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     for (int k=0;k<=MainFrame.depth;k++)
                         MainFrame.deletedCoordinates[i][j][k]=false;
         }
-        float positionOffset=0.15f;
+        float positionOffset=0.105f;
         //initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
         colorCubeArrayList = new ArrayList<DNAColorCubeArray>();
 
@@ -259,12 +259,6 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
                     c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
                     c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
                     c1.setCapability(Node.ENABLE_PICK_REPORTING);
-
-                    Appearance ap = new Appearance();
-                    TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.15f);
-                    ap.setTransparencyAttributes( transparencyAttributes );
-
-                    c1.setAppearance(ap);
                     c1.setCordinate(i, j - MainFrame.height + 1, k - MainFrame.depth + 1);
                     tg = new TransformGroup();
                     tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
