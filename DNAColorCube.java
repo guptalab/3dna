@@ -72,10 +72,10 @@ public class DNAColorCube extends ColorCube{
         cubeArray.setColor(17,colorLemonChiffon);
         cubeArray.setColor(18,colorLemonChiffon);
         cubeArray.setColor(19,colorLemonChiffon);
-        cubeArray.setColor(20,colorLightSteelBlue);
-        cubeArray.setColor(21,colorLightSteelBlue);
-        cubeArray.setColor(22,colorLightSteelBlue);
-        cubeArray.setColor(23,colorLightSteelBlue);
+        //cubeArray.setColor(20,colorLightSteelBlue);
+        //cubeArray.setColor(21,colorLightSteelBlue);
+        //cubeArray.setColor(22,colorLightSteelBlue);
+        //cubeArray.setColor(23,colorLightSteelBlue);
     }
     public void setCordinate(int x, int y, int z){
         xCord=x;
