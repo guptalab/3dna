@@ -12,10 +12,9 @@ import com.sun.j3d.utils.universe.*;
 import javax.media.j3d.*;
 import javax.swing.*;
 import javax.vecmath.*;
-import com.sun.j3d.utils.image.TextureLoader;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
+import java.util.ArrayList;
 
 
 public class VisualizeActionListener implements ActionListener{
@@ -24,11 +23,13 @@ public class VisualizeActionListener implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         // TODO Auto-generated method stub
         System.out.println("Visualization option has been selected");
+
         visualizeFrame = new JFrame("3DNA Visualization");
         visualizeFrame.setVisible(true);
         visualizeFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         visualizeFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
+        //Initialize the visualizeFrameBasePanel
         visualizeFrameBasePanel = new JPanel();
         visualizeFrameBasePanel.setLayout(new BorderLayout());
         visualizeFrame.getContentPane().add(visualizeFrameBasePanel);
@@ -40,8 +41,8 @@ public class VisualizeActionListener implements ActionListener{
         //Initialize Canvas3D
         initializeCanvas3D();
         visualizeFrameBasePanel.add(visualizeCanvas,BorderLayout.CENTER);
-
     }
+
 
     public static void initializeLeftJToolBar(){
         leftJToolBar = new JToolBar();
@@ -58,7 +59,6 @@ public class VisualizeActionListener implements ActionListener{
         ImageIcon leftArrowIcon = new ImageIcon("icons/arrow-left.png");
         ImageIcon rightArrowIcon = new ImageIcon("icons/arrow-right.png");
         ImageIcon resetIcon = new ImageIcon("icons/reset.png");
-        ImageIcon undoIcon = new ImageIcon("icons/undo.png");
 
         zoomInButton = new JButton(zoominIcon);
         zoomInButton.setBackground(Color.DARK_GRAY);
@@ -118,13 +118,15 @@ public class VisualizeActionListener implements ActionListener{
         visualizationSimpleUniverse = new SimpleUniverse(visualizeCanvas);
         //initialize viewing platform
         viewingPlatform = visualizationSimpleUniverse.getViewingPlatform();
+
         //define background colors for the Canvas
         BranchGroup backgroundBranchGroup = new BranchGroup();
-        Background background = new Background(new Color3f(1f,1f,1f));
+        Background background = new Background(new Color3f(0f,0f,0f));
         BoundingSphere sphere = new BoundingSphere(new Point3d(0,0,0), 100000);
         background.setApplicationBounds(sphere);
         backgroundBranchGroup.addChild(background);
         viewingPlatform.addChild(backgroundBranchGroup);
+
         //setting the Viewing Platform with the initial values
         canvasX = 0.0f;
         canvasY = 0.0f;
@@ -134,6 +136,7 @@ public class VisualizeActionListener implements ActionListener{
         View_TransformGroup.getTransform(View_Transform3D); // get the current 3d from the ViewingPlatform
         View_Transform3D.setTranslation(new Vector3f(canvasX,canvasY,canvasZ)); // set 3d to  x=0, y=0, z=10
         View_TransformGroup.setTransform(View_Transform3D);  // assign Transform3D to ViewPlatform
+
         //initialize visualizeScene
         visualizeScene = createSceneGraph();
         visualizeScene.compile();
@@ -143,7 +146,79 @@ public class VisualizeActionListener implements ActionListener{
     public static BranchGroup createSceneGraph() {
 
         objRoot = new BranchGroup();
+        masterTrans = new TransformGroup();
 
+        int x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
+        int canvasDomainXCoordinate, canvasDomainYCoordinate, canvasDomainZCoordinate;
+        ArrayList<VoxelToBrick> DNASequenceData = SaveFinalSequences.finalData;
+        for (int i = 0; i < DNASequenceData.size(); i++) {
+            //identify and print for domains 1 and 2(HalfBrick)
+            if (DNASequenceData.get(i).x3 == -1) {
+                x1 = DNASequenceData.get(i).x1;
+                y1 = DNASequenceData.get(i).y1;
+                z1 = DNASequenceData.get(i).z1;
+
+                x2 = DNASequenceData.get(i).x2;
+                y2 = DNASequenceData.get(i).y2;
+                z2 = DNASequenceData.get(i).z2;
+
+                System.out.println("Printing Domain12HalfBrick"+x1+":"+y1+":"+z1+","+x2+":"+y2+":"+z2);
+
+                canvasDomainXCoordinate = x1;
+                canvasDomainYCoordinate = y1;
+                canvasDomainZCoordinate = z2;
+
+                //Code for Domain12
+                getDomain12Block((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+
+
+            }else if (DNASequenceData.get(i).x1 == -1) {//identify and print for domains 3 and 4(HalfBrick)
+                x3 = DNASequenceData.get(i).x3;
+                y3 = DNASequenceData.get(i).y3;
+                z3 = DNASequenceData.get(i).z3;
+
+                x4 = DNASequenceData.get(i).x4;
+                y4 = DNASequenceData.get(i).y4;
+                z4 = DNASequenceData.get(i).z4;
+
+                System.out.println("Printing Domain34HalfBrick"+x3+":"+y3+":"+z3+","+x4+":"+y4+":"+z4);
+
+                canvasDomainXCoordinate = x3;
+                canvasDomainYCoordinate = y3;
+                canvasDomainZCoordinate = z3;
+
+                //Code for Domain34
+                getDomain34Block((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+
+
+            }else {//identify and print for full bricks(FullBrick)
+                x1 = DNASequenceData.get(i).x1;
+                y1 = DNASequenceData.get(i).y1;
+                z1 = DNASequenceData.get(i).z1;
+
+                x2 = DNASequenceData.get(i).x2;
+                y2 = DNASequenceData.get(i).y2;
+                z2 = DNASequenceData.get(i).z2;
+
+                x3 = DNASequenceData.get(i).x3;
+                y3 = DNASequenceData.get(i).y3;
+                z3 = DNASequenceData.get(i).z3;
+
+                x4 = DNASequenceData.get(i).x4;
+                y4 = DNASequenceData.get(i).y4;
+                z4 = DNASequenceData.get(i).z4;
+
+                System.out.println("Printing Domain1234FullBrick"+x1+":"+y1+":"+z1+","+x2+":"+y2+":"+z2+","+x3+":"+y3+":"+z3+","+x4+":"+y4+":"+z4);
+
+                canvasDomainXCoordinate = x2;
+                canvasDomainYCoordinate = y2;
+                canvasDomainZCoordinate = z2;
+                //Code for Domain1234(FullBrick)
+                getDomain1234Block((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+
+            }
+        }
+        isCompleted=true;
         /**Code for creating 3DNA Domain Blocks
          *The building units of the Visualization class comprises of 3 modular Blocks viz. domain12Block, domain34Block,
          *  domain1234Block
@@ -152,8 +227,12 @@ public class VisualizeActionListener implements ActionListener{
          *  The final parameters which will be used for creating the visualization canvas will include:
          *  domainBlockxx[XX]tg and domainBlockxx[XX]t3d
          */
+        objRoot.addChild(masterTrans);
+        return objRoot;
+    }
 
-        //Code for Domain12
+
+    public static void getDomain12Block(float x, float y, float z){
         TransformGroup domain12CoverCylinderTransformGroup = new TransformGroup();
         Transform3D domain12CoverCylinderTransform3D = new Transform3D();
 
@@ -162,8 +241,6 @@ public class VisualizeActionListener implements ActionListener{
 
         Transform3D rotation12 = new Transform3D();
         rotation12.rotX(Math.PI/2);
-
-        MouseRotate rotateBehaviour;
 
         domain12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
         domain12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -191,7 +268,7 @@ public class VisualizeActionListener implements ActionListener{
             domain12CoverCylinderTransformGroup.addChild(domain12CoverCylinder);
 
             Appearance ap = new Appearance();
-            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.7f);
+            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.9f);
             ap.setTransparencyAttributes( transparencyAttributes );
             domain12CoverCylinder.setAppearance(ap);
         }
@@ -199,12 +276,12 @@ public class VisualizeActionListener implements ActionListener{
         catch (java.io.FileNotFoundException ex){
         }
 
-        BoundingSphere bounds = new BoundingSphere (new Point3d (0.0, 0.0, 0.0), 100.0);
+        bounds = new BoundingSphere (new Point3d (0.0, 0.0, 0.0), 100.0);
 
         AmbientLight lightForDomain12 = new AmbientLight();
 
-        TransformGroup domainBlock12tg = new TransformGroup();
-        Transform3D domainBlock12t3d = new Transform3D();
+        domainBlock12tg = new TransformGroup();
+        domainBlock12t3d = new Transform3D();
 
         domainBlock12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
         domainBlock12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -218,6 +295,8 @@ public class VisualizeActionListener implements ActionListener{
         domainBlock12tg.addChild(domain12CoverCylinderTransformGroup);
 
         domainBlock12t3d.mul(rotation12);
+        Vector3f domainBlock12Position = new Vector3f(x,y,z);
+        domainBlock12t3d.setTranslation(domainBlock12Position);
         domainBlock12tg.setTransform(domainBlock12t3d);
 
         lightForDomain12.setEnable(true);
@@ -226,11 +305,10 @@ public class VisualizeActionListener implements ActionListener{
         lightForDomain12.addScope(domain12tg);
         lightForDomain12.addScope(domain12CoverCylinderTransformGroup);
 
-        objRoot.addChild (lightForDomain12);
-        objRoot.addChild(domainBlock12tg);
-
-
-        //Code for Domain34
+        masterTrans.addChild (lightForDomain12);
+        masterTrans.addChild(domainBlock12tg);
+    }
+    public static void getDomain34Block(float x, float y, float z){
         TransformGroup domain34CoverCylinderTransformGroup = new TransformGroup();
         Transform3D domain34CoverCylinderTransform3D = new Transform3D();
 
@@ -266,7 +344,7 @@ public class VisualizeActionListener implements ActionListener{
             domain34CoverCylinderTransformGroup.addChild(domain34CoverCylinder);
 
             Appearance ap = new Appearance();
-            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.7f);
+            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.9f);
             ap.setTransparencyAttributes( transparencyAttributes );
             domain34CoverCylinder.setAppearance(ap);
         }
@@ -276,8 +354,8 @@ public class VisualizeActionListener implements ActionListener{
 
         AmbientLight lightForDomain34 = new AmbientLight();
 
-        TransformGroup domainBlock34tg = new TransformGroup();
-        Transform3D domainBlock34t3d = new Transform3D();
+        domainBlock34tg = new TransformGroup();
+        domainBlock34t3d = new Transform3D();
 
         domainBlock34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
         domainBlock34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -291,6 +369,8 @@ public class VisualizeActionListener implements ActionListener{
         domainBlock34tg.addChild(domain34CoverCylinderTransformGroup);
 
         domainBlock34t3d.mul(rotation34);
+        Vector3f domainBlock34Position = new Vector3f(x,y,z);
+        domainBlock34t3d.setTranslation(domainBlock34Position);
         domainBlock34tg.setTransform(domainBlock34t3d);
 
         lightForDomain34.setEnable(true);
@@ -299,11 +379,11 @@ public class VisualizeActionListener implements ActionListener{
         lightForDomain34.addScope(domain34tg);
         lightForDomain34.addScope(domain34CoverCylinderTransformGroup);
 
-        objRoot.addChild (lightForDomain34);
-        objRoot.addChild(domainBlock34tg);
+        masterTrans.addChild (lightForDomain34);
+        masterTrans.addChild(domainBlock34tg);
+    }
 
-
-        //Code for Domain1234(FullBrick)
+    public static void getDomain1234Block(float x, float y, float z){
         TransformGroup domain1234CoverCylinderTransformGroup = new TransformGroup();
         Transform3D domain1234CoverCylinderTransform3D = new Transform3D();
 
@@ -349,8 +429,8 @@ public class VisualizeActionListener implements ActionListener{
 
         AmbientLight lightForDomain1234 = new AmbientLight();
 
-        TransformGroup domainBlock1234tg = new TransformGroup();
-        Transform3D domainBlock1234t3d = new Transform3D();
+        domainBlock1234tg = new TransformGroup();
+        domainBlock1234t3d = new Transform3D();
 
         domainBlock1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
         domainBlock1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
@@ -363,7 +443,9 @@ public class VisualizeActionListener implements ActionListener{
         domainBlock1234tg.addChild(domain1234tg);
         domainBlock1234tg.addChild(domain1234CoverCylinderTransformGroup);
 
-        //domainBlock1234t3d.mul(rotation1234);
+        domainBlock1234t3d.mul(rotation1234);
+        Vector3f domainBlock1234Position = new Vector3f(x,y,z);
+        domainBlock1234t3d.setTranslation(domainBlock1234Position);
         domainBlock1234tg.setTransform(domainBlock1234t3d);
 
         lightForDomain1234.setEnable(true);
@@ -372,12 +454,17 @@ public class VisualizeActionListener implements ActionListener{
         lightForDomain1234.addScope(domain1234tg);
         lightForDomain1234.addScope(domain1234CoverCylinderTransformGroup);
 
-        objRoot.addChild (lightForDomain1234);
-        objRoot.addChild(domainBlock1234tg);
-
-        return objRoot;
+        masterTrans.addChild(lightForDomain1234);
+        masterTrans.addChild(domainBlock1234tg);
     }
 
+    public static TransformGroup masterTrans;
+    public static TransformGroup domainBlock12tg;
+    public static Transform3D domainBlock12t3d;
+    public static TransformGroup domainBlock34tg;
+    public static Transform3D domainBlock34t3d;
+    public static TransformGroup domainBlock1234tg;
+    public static Transform3D domainBlock1234t3d;
     public static float canvasX;
     public static float canvasY;
     public static float canvasZ;
@@ -396,4 +483,7 @@ public class VisualizeActionListener implements ActionListener{
     public static JButton rightButton;
     public static JButton leftButton;
     public static JButton resetButton;
+    public static MouseRotate rotateBehaviour;
+    public static BoundingSphere bounds;
+    public static Boolean isCompleted = false;
 }
