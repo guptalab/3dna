@@ -7,7 +7,6 @@ import java.awt.*;
 import com.sun.j3d.loaders.Scene;
 import com.sun.j3d.loaders.objectfile.ObjectFile;
 import com.sun.j3d.utils.behaviors.mouse.MouseRotate;
-import com.sun.j3d.utils.geometry.Cylinder;
 import com.sun.j3d.utils.universe.*;
 import javax.media.j3d.*;
 import javax.swing.*;
@@ -121,7 +120,7 @@ public class VisualizeActionListener implements ActionListener{
 
         //define background colors for the Canvas
         BranchGroup backgroundBranchGroup = new BranchGroup();
-        Background background = new Background(new Color3f(0f,0f,0f));
+        Background background = new Background(new Color3f(1f,1f,1f));
         BoundingSphere sphere = new BoundingSphere(new Point3d(0,0,0), 100000);
         background.setApplicationBounds(sphere);
         backgroundBranchGroup.addChild(background);
@@ -130,11 +129,11 @@ public class VisualizeActionListener implements ActionListener{
         //setting the Viewing Platform with the initial values
         canvasX = 0.0f;
         canvasY = 0.0f;
-        canvasZ = 10.0f;
+        canvasZ = 20.0f;
         TransformGroup View_TransformGroup = viewingPlatform.getMultiTransformGroup().getTransformGroup(0); // get the TransformGroup associated
         Transform3D View_Transform3D = new Transform3D();    // create a Transform3D for the ViewingPlatform
         View_TransformGroup.getTransform(View_Transform3D); // get the current 3d from the ViewingPlatform
-        View_Transform3D.setTranslation(new Vector3f(canvasX,canvasY,canvasZ)); // set 3d to  x=0, y=0, z=10
+        View_Transform3D.setTranslation(new Vector3f(canvasX,canvasY,canvasZ)); // set 3d to  x=0, y=0, z=20
         View_TransformGroup.setTransform(View_Transform3D);  // assign Transform3D to ViewPlatform
 
         //initialize visualizeScene
@@ -147,6 +146,15 @@ public class VisualizeActionListener implements ActionListener{
 
         objRoot = new BranchGroup();
         masterTrans = new TransformGroup();
+
+        masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+        masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+
+        rotateBehaviour=new MouseRotate();
+        rotateBehaviour.setTransformGroup(masterTrans);
+        rotateBehaviour.setSchedulingBounds(new BoundingSphere());
+
+        masterTrans.addChild(rotateBehaviour);
 
         int x1, y1, z1, x2, y2, z2, x3, y3, z3, x4, y4, z4;
         int canvasDomainXCoordinate, canvasDomainYCoordinate, canvasDomainZCoordinate;
@@ -213,9 +221,18 @@ public class VisualizeActionListener implements ActionListener{
                 canvasDomainXCoordinate = x2;
                 canvasDomainYCoordinate = y2;
                 canvasDomainZCoordinate = z2;
-                //Code for Domain1234(FullBrick)
-                getDomain1234Block((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
 
+                //Code for adding Domain1234(FullBrick) based on their orientation
+
+                if(canvasDomainZCoordinate%2 == 0){
+                    getDomain1234NorthBlock((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+                }else if(canvasDomainZCoordinate%2 == 1){
+                    getDomain1234WestBlock((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+                }else if(canvasDomainZCoordinate%2 == 2){
+                    getDomain1234SouthBlock((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+                }else if(canvasDomainZCoordinate%2 == 3){
+                    getDomain1234EastBlock((float) canvasDomainXCoordinate, (float) canvasDomainYCoordinate, (float) canvasDomainZCoordinate);
+                }
             }
         }
         isCompleted=true;
@@ -234,18 +251,12 @@ public class VisualizeActionListener implements ActionListener{
 
     public static void getDomain12Block(float x, float y, float z){
         TransformGroup domain12CoverCylinderTransformGroup = new TransformGroup();
-        Transform3D domain12CoverCylinderTransform3D = new Transform3D();
 
         TransformGroup domain12tg = new TransformGroup();
         Transform3D domain12t3d = new Transform3D();
 
         Transform3D rotation12 = new Transform3D();
         rotation12.rotX(Math.PI/2);
-
-        domain12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domain12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain12CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain12CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 
         try
         {
@@ -260,17 +271,6 @@ public class VisualizeActionListener implements ActionListener{
             domain12t3d.mul(rotation12);
             domain12t3d.setTranslation(new Vector3f(0.5f,0f,0f));
             domain12tg.setTransform(domain12t3d);
-
-            Cylinder domain12CoverCylinder = new Cylinder(0.4f, 2f);
-            Vector3f domain12CoverCylinderVector = new Vector3f(-0.10f,0f,0.08f);
-            domain12CoverCylinderTransform3D.setTranslation(domain12CoverCylinderVector);
-            domain12CoverCylinderTransformGroup.setTransform(domain12CoverCylinderTransform3D);
-            domain12CoverCylinderTransformGroup.addChild(domain12CoverCylinder);
-
-            Appearance ap = new Appearance();
-            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.9f);
-            ap.setTransparencyAttributes( transparencyAttributes );
-            domain12CoverCylinder.setAppearance(ap);
         }
 
         catch (java.io.FileNotFoundException ex){
@@ -283,16 +283,7 @@ public class VisualizeActionListener implements ActionListener{
         domainBlock12tg = new TransformGroup();
         domainBlock12t3d = new Transform3D();
 
-        domainBlock12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domainBlock12tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-
-        rotateBehaviour=new MouseRotate();
-        rotateBehaviour.setTransformGroup(domainBlock12tg);
-        rotateBehaviour.setSchedulingBounds(new BoundingSphere());
-
-        domainBlock12tg.addChild(rotateBehaviour);
         domainBlock12tg.addChild(domain12tg);
-        domainBlock12tg.addChild(domain12CoverCylinderTransformGroup);
 
         domainBlock12t3d.mul(rotation12);
         Vector3f domainBlock12Position = new Vector3f(x,y,z);
@@ -309,19 +300,12 @@ public class VisualizeActionListener implements ActionListener{
         masterTrans.addChild(domainBlock12tg);
     }
     public static void getDomain34Block(float x, float y, float z){
-        TransformGroup domain34CoverCylinderTransformGroup = new TransformGroup();
-        Transform3D domain34CoverCylinderTransform3D = new Transform3D();
 
         TransformGroup domain34tg = new TransformGroup();
         Transform3D domain34t3d = new Transform3D();
 
         Transform3D rotation34 = new Transform3D();
         rotation34.rotX(Math.PI/2);
-
-        domain34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domain34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain34CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain34CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 
         try
         {
@@ -337,16 +321,6 @@ public class VisualizeActionListener implements ActionListener{
             domain34t3d.setTranslation(new Vector3f(-0.5f,0f,0f));
             domain34tg.setTransform(domain34t3d);
 
-            Cylinder domain34CoverCylinder = new Cylinder(0.4f, 2f);
-            Vector3f domain34CoverCylinderVector = new Vector3f(-1.10f,0f,0.08f);
-            domain34CoverCylinderTransform3D.setTranslation(domain34CoverCylinderVector);
-            domain34CoverCylinderTransformGroup.setTransform(domain34CoverCylinderTransform3D);
-            domain34CoverCylinderTransformGroup.addChild(domain34CoverCylinder);
-
-            Appearance ap = new Appearance();
-            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.9f);
-            ap.setTransparencyAttributes( transparencyAttributes );
-            domain34CoverCylinder.setAppearance(ap);
         }
 
         catch (java.io.FileNotFoundException ex){
@@ -357,16 +331,7 @@ public class VisualizeActionListener implements ActionListener{
         domainBlock34tg = new TransformGroup();
         domainBlock34t3d = new Transform3D();
 
-        domainBlock34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domainBlock34tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-
-        rotateBehaviour=new MouseRotate();
-        rotateBehaviour.setTransformGroup(domainBlock34tg);
-        rotateBehaviour.setSchedulingBounds(new BoundingSphere());
-
-        domainBlock34tg.addChild(rotateBehaviour);
         domainBlock34tg.addChild(domain34tg);
-        domainBlock34tg.addChild(domain34CoverCylinderTransformGroup);
 
         domainBlock34t3d.mul(rotation34);
         Vector3f domainBlock34Position = new Vector3f(x,y,z);
@@ -377,26 +342,18 @@ public class VisualizeActionListener implements ActionListener{
         lightForDomain34.setColor(new Color3f(0/255f, 255/255f, 0/255f));
         lightForDomain34.setInfluencingBounds(bounds);
         lightForDomain34.addScope(domain34tg);
-        lightForDomain34.addScope(domain34CoverCylinderTransformGroup);
 
         masterTrans.addChild (lightForDomain34);
         masterTrans.addChild(domainBlock34tg);
     }
 
-    public static void getDomain1234Block(float x, float y, float z){
-        TransformGroup domain1234CoverCylinderTransformGroup = new TransformGroup();
-        Transform3D domain1234CoverCylinderTransform3D = new Transform3D();
+    public static void getDomain1234NorthBlock(float x, float y, float z){
 
         TransformGroup domain1234tg = new TransformGroup();
         Transform3D domain1234t3d = new Transform3D();
 
         Transform3D rotation1234 = new Transform3D();
         rotation1234.rotX(Math.PI/2);
-
-        domain1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domain1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain1234CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-        domain1234CoverCylinderTransformGroup.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
 
         try
         {
@@ -412,52 +369,177 @@ public class VisualizeActionListener implements ActionListener{
             domain1234t3d.setTranslation(new Vector3f(-2.0f,0f,0f));
             domain1234tg.setTransform(domain1234t3d);
 
-            Cylinder domain1234CoverCylinder = new Cylinder(0.7f, 2f);
-            Vector3f domain1234CoverCylinderVector = new Vector3f(-2.50f,0f,0.08f);
-            domain1234CoverCylinderTransform3D.setTranslation(domain1234CoverCylinderVector);
-            domain1234CoverCylinderTransformGroup.setTransform(domain1234CoverCylinderTransform3D);
-            domain1234CoverCylinderTransformGroup.addChild(domain1234CoverCylinder);
-
-            Appearance ap = new Appearance();
-            TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.7f);
-            ap.setTransparencyAttributes( transparencyAttributes );
-            domain1234CoverCylinder.setAppearance(ap);
         }
 
         catch (java.io.FileNotFoundException ex){
         }
 
-        AmbientLight lightForDomain1234 = new AmbientLight();
+        lightForDomain1234North = new AmbientLight();
 
         domainBlock1234tg = new TransformGroup();
         domainBlock1234t3d = new Transform3D();
 
-        domainBlock1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
-        domainBlock1234tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
-
-        rotateBehaviour=new MouseRotate();
-        rotateBehaviour.setTransformGroup(domainBlock1234tg);
-        rotateBehaviour.setSchedulingBounds(new BoundingSphere());
-
-        domainBlock1234tg.addChild(rotateBehaviour);
         domainBlock1234tg.addChild(domain1234tg);
-        domainBlock1234tg.addChild(domain1234CoverCylinderTransformGroup);
 
         domainBlock1234t3d.mul(rotation1234);
         Vector3f domainBlock1234Position = new Vector3f(x,y,z);
         domainBlock1234t3d.setTranslation(domainBlock1234Position);
         domainBlock1234tg.setTransform(domainBlock1234t3d);
 
-        lightForDomain1234.setEnable(true);
-        lightForDomain1234.setColor(new Color3f(0/255f, 0/255f, 255/255f));
-        lightForDomain1234.setInfluencingBounds(bounds);
-        lightForDomain1234.addScope(domain1234tg);
-        lightForDomain1234.addScope(domain1234CoverCylinderTransformGroup);
+        lightForDomain1234North.setEnable(true);
+        lightForDomain1234North.setColor(new Color3f(0/255f, 0/255f, 255/255f));
+        lightForDomain1234North.setInfluencingBounds(bounds);
+        lightForDomain1234North.addScope(domain1234tg);
 
-        masterTrans.addChild(lightForDomain1234);
+        masterTrans.addChild(lightForDomain1234North);
+        masterTrans.addChild(domainBlock1234tg);
+    }
+    public static void getDomain1234WestBlock(float x, float y, float z){
+
+        TransformGroup domain1234tg = new TransformGroup();
+        Transform3D domain1234t3d = new Transform3D();
+
+        Transform3D rotation1234 = new Transform3D();
+        rotation1234.rotX(Math.PI/2);
+
+        try
+        {
+            Scene scene1 = null;
+            ObjectFile f = new ObjectFile ();
+            f.setFlags (ObjectFile.RESIZE | ObjectFile.TRIANGULATE | ObjectFile.STRIPIFY);
+
+            String s1 = "FullBrick.obj";
+            scene1 = f.load (s1);
+
+            domain1234tg.addChild (scene1.getSceneGroup ());
+            domain1234t3d.mul(rotation1234);
+            domain1234t3d.setTranslation(new Vector3f(-2.0f,0f,0f));
+            domain1234tg.setTransform(domain1234t3d);
+
+        }
+
+        catch (java.io.FileNotFoundException ex){
+        }
+
+        lightForDomain1234West = new AmbientLight();
+
+        domainBlock1234tg = new TransformGroup();
+        domainBlock1234t3d = new Transform3D();
+
+        domainBlock1234tg.addChild(domain1234tg);
+
+        domainBlock1234t3d.mul(rotation1234);
+        Vector3f domainBlock1234Position = new Vector3f(x,y,z);
+        domainBlock1234t3d.setTranslation(domainBlock1234Position);
+        domainBlock1234tg.setTransform(domainBlock1234t3d);
+
+        lightForDomain1234West.setEnable(true);
+        lightForDomain1234West.setColor(new Color3f(0/255f, 255/255f, 255/255f));
+        lightForDomain1234West.setInfluencingBounds(bounds);
+        lightForDomain1234West.addScope(domain1234tg);
+
+        masterTrans.addChild(lightForDomain1234West);
+        masterTrans.addChild(domainBlock1234tg);
+    }
+    public static void getDomain1234SouthBlock(float x, float y, float z){
+
+        TransformGroup domain1234tg = new TransformGroup();
+        Transform3D domain1234t3d = new Transform3D();
+
+        Transform3D rotation1234 = new Transform3D();
+        rotation1234.rotX(Math.PI/2);
+
+        try
+        {
+            Scene scene1 = null;
+            ObjectFile f = new ObjectFile ();
+            f.setFlags (ObjectFile.RESIZE | ObjectFile.TRIANGULATE | ObjectFile.STRIPIFY);
+
+            String s1 = "FullBrick.obj";
+            scene1 = f.load (s1);
+
+            domain1234tg.addChild (scene1.getSceneGroup ());
+            domain1234t3d.mul(rotation1234);
+            domain1234t3d.setTranslation(new Vector3f(-2.0f,0f,0f));
+            domain1234tg.setTransform(domain1234t3d);
+
+        }
+
+        catch (java.io.FileNotFoundException ex){
+        }
+
+        lightForDomain1234South = new AmbientLight();
+
+        domainBlock1234tg = new TransformGroup();
+        domainBlock1234t3d = new Transform3D();
+
+        domainBlock1234tg.addChild(domain1234tg);
+
+        domainBlock1234t3d.mul(rotation1234);
+        Vector3f domainBlock1234Position = new Vector3f(x,y,z);
+        domainBlock1234t3d.setTranslation(domainBlock1234Position);
+        domainBlock1234tg.setTransform(domainBlock1234t3d);
+
+        lightForDomain1234South.setEnable(true);
+        lightForDomain1234South.setColor(new Color3f(255/255f, 0/255f, 255/255f));
+        lightForDomain1234South.setInfluencingBounds(bounds);
+        lightForDomain1234South.addScope(domain1234tg);
+
+        masterTrans.addChild(lightForDomain1234South);
+        masterTrans.addChild(domainBlock1234tg);
+    }
+    public static void getDomain1234EastBlock(float x, float y, float z){
+
+        TransformGroup domain1234tg = new TransformGroup();
+        Transform3D domain1234t3d = new Transform3D();
+
+        Transform3D rotation1234 = new Transform3D();
+        rotation1234.rotX(Math.PI/2);
+
+        try
+        {
+            Scene scene1 = null;
+            ObjectFile f = new ObjectFile ();
+            f.setFlags (ObjectFile.RESIZE | ObjectFile.TRIANGULATE | ObjectFile.STRIPIFY);
+
+            String s1 = "FullBrick.obj";
+            scene1 = f.load (s1);
+
+            domain1234tg.addChild (scene1.getSceneGroup ());
+            domain1234t3d.mul(rotation1234);
+            domain1234t3d.setTranslation(new Vector3f(-2.0f,0f,0f));
+            domain1234tg.setTransform(domain1234t3d);
+
+        }
+
+        catch (java.io.FileNotFoundException ex){
+        }
+
+        lightForDomain1234East = new AmbientLight();
+
+        domainBlock1234tg = new TransformGroup();
+        domainBlock1234t3d = new Transform3D();
+
+        domainBlock1234tg.addChild(domain1234tg);
+
+        domainBlock1234t3d.mul(rotation1234);
+        Vector3f domainBlock1234Position = new Vector3f(x,y,z);
+        domainBlock1234t3d.setTranslation(domainBlock1234Position);
+        domainBlock1234tg.setTransform(domainBlock1234t3d);
+
+        lightForDomain1234East.setEnable(true);
+        lightForDomain1234East.setColor(new Color3f(0/255f, 0/255f, 255/255f));
+        lightForDomain1234East.setInfluencingBounds(bounds);
+        lightForDomain1234East.addScope(domain1234tg);
+
+        masterTrans.addChild(lightForDomain1234East);
         masterTrans.addChild(domainBlock1234tg);
     }
 
+    public static AmbientLight lightForDomain1234North;
+    public static AmbientLight lightForDomain1234West;
+    public static AmbientLight lightForDomain1234South;
+    public static AmbientLight lightForDomain1234East;
     public static TransformGroup masterTrans;
     public static TransformGroup domainBlock12tg;
     public static Transform3D domainBlock12t3d;
@@ -486,4 +568,5 @@ public class VisualizeActionListener implements ActionListener{
     public static MouseRotate rotateBehaviour;
     public static BoundingSphere bounds;
     public static Boolean isCompleted = false;
+    public static float visualizeCanvasStep = 1.00f;
 }
