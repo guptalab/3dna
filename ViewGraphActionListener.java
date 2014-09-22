@@ -82,18 +82,18 @@ public class ViewGraphActionListener extends JFrame implements ActionListener {
         domainCount=0;
 
 
-        for (int i = 0; i < SaveFinalSequences.finalData.size(); i++) {
-            if (SaveFinalSequences.finalData.get(i).Domain1 != null)
+        for (int i = 0; i < CoordinatesSequenceMap.finalData.size(); i++) {
+            if (CoordinatesSequenceMap.finalData.get(i).Domain1 != null)
                 domainCount++;
-            if (SaveFinalSequences.finalData.get(i).Domain2 != null)
+            if (CoordinatesSequenceMap.finalData.get(i).Domain2 != null)
                 domainCount++;
-            if (SaveFinalSequences.finalData.get(i).Domain3 != null)
+            if (CoordinatesSequenceMap.finalData.get(i).Domain3 != null)
                 domainCount++;
-            if (SaveFinalSequences.finalData.get(i).Domain4 != null)
+            if (CoordinatesSequenceMap.finalData.get(i).Domain4 != null)
                 domainCount++;
-            if (SaveFinalSequences.finalData.get(i).Domain5 != null)
+            if (CoordinatesSequenceMap.finalData.get(i).Domain5 != null)
                 domainCount++;
-            if (SaveFinalSequences.finalData.get(i).Domain6 != null)
+            if (CoordinatesSequenceMap.finalData.get(i).Domain6 != null)
                 domainCount++;
         }
 
@@ -161,33 +161,33 @@ public class ViewGraphActionListener extends JFrame implements ActionListener {
         eightBPSimilarity = 0;
         sevenBPSimilarity = 0;
         sixBPSimilarity = 0;
-        int size=SaveFinalSequences.finalData.size()*4;
+        int size=CoordinatesSequenceMap.finalData.size()*4;
         String[] Domains = new String[size];
         int counter = 0;
 
-        for (int i = 0; i < SaveFinalSequences.finalData.size(); i++) {
-            if (SaveFinalSequences.finalData.get(i).Domain1 != null && !(SaveFinalSequences.finalData.get(i).Domain1.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain1;
+        for (int i = 0; i < CoordinatesSequenceMap.finalData.size(); i++) {
+            if (CoordinatesSequenceMap.finalData.get(i).Domain1 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain1.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain1;
                 counter++;
             }
-            if (SaveFinalSequences.finalData.get(i).Domain2 != null && !(SaveFinalSequences.finalData.get(i).Domain2.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain2;
+            if (CoordinatesSequenceMap.finalData.get(i).Domain2 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain2.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain2;
                 counter++;
             }
-            if (SaveFinalSequences.finalData.get(i).Domain3 != null && !(SaveFinalSequences.finalData.get(i).Domain3.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain3;
+            if (CoordinatesSequenceMap.finalData.get(i).Domain3 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain3.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain3;
                 counter++;
             }
-            if (SaveFinalSequences.finalData.get(i).Domain4 != null && !(SaveFinalSequences.finalData.get(i).Domain4.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain4;
+            if (CoordinatesSequenceMap.finalData.get(i).Domain4 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain4.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain4;
                 counter++;
             }
-            if (SaveFinalSequences.finalData.get(i).Domain5 != null && !(SaveFinalSequences.finalData.get(i).Domain5.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain5;
+            if (CoordinatesSequenceMap.finalData.get(i).Domain5 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain5.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain5;
                 counter++;
             }
-            if (SaveFinalSequences.finalData.get(i).Domain6 != null && !(SaveFinalSequences.finalData.get(i).Domain6.equals("TTTTTTTT"))) {
-                Domains[counter] = SaveFinalSequences.finalData.get(i).Domain6;
+            if (CoordinatesSequenceMap.finalData.get(i).Domain6 != null && !(CoordinatesSequenceMap.finalData.get(i).Domain6.equals("TTTTTTTT"))) {
+                Domains[counter] = CoordinatesSequenceMap.finalData.get(i).Domain6;
                 counter++;
             }
         }

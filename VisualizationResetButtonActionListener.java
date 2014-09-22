@@ -15,7 +15,7 @@ public class VisualizationResetButtonActionListener implements ActionListener {
         //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
         VisualizeActionListener.canvasX=0.0f;
         VisualizeActionListener.canvasY=0.0f;
-        VisualizeActionListener.canvasZ=10.0f;
+        VisualizeActionListener.canvasZ=20.0f;
 
         ImportActionListener.canvasx=0.0f;
         ImportActionListener.canvasy=0.0f;

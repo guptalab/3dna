@@ -12,40 +12,40 @@ public class DeleteRowActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Delete row has been called");
-        MainFrame.deletePlaneRadioButton.setEnabled(false);
-        MainFrame.deleteRowRadioButton.setEnabled(false);
 
         final JFrame deleteRowFrame = new JFrame("Delete Canvas row");
-        ImageIcon img = new ImageIcon("images/logod.png");
+        deleteRowFrame.setBackground(Color.DARK_GRAY);
+        ImageIcon img = new ImageIcon("icons/software_logo.png");
         Image imag=img.getImage();
         deleteRowFrame.setIconImage(imag);
         deleteRowFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel mainPanel = new JPanel();
+        mainPanel.setBackground(Color.DARK_GRAY);
         mainPanel.setLayout(new GridBagLayout());
         GridBagConstraints dimensionFrameGridBagConstraints = new GridBagConstraints();
         dimensionFrameGridBagConstraints.insets = new Insets(5, 5, 5, 5);
 
-        JLabel selectedPlaneLabel = new JLabel("Select Canvas Plane: ");
+        JLabel selectedPlaneLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Select Canvas Plane:</h4></html>");
 
         String[] rowOptions = {"Select Canvas Plane","X Plane","Y Plane","Z Plane"};
         final JComboBox planeListComboBox = new JComboBox(rowOptions);
         planeListComboBox.setSelectedIndex(0);
 
-        JLabel selectedPlaneNumberLabel = new JLabel("Enter plane Co-ordinate");
+        JLabel selectedPlaneNumberLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Enter plane Co-ordinate</h4></html>");
         final JTextField selectedPlaneNumberTextField= new JTextField(2);
 
-        final JLabel selectedRowMinXLabel = new JLabel("X Min");
+        final JLabel selectedRowMinXLabel = new JLabel("<html><style>h4{color:white;}</style><h4>X Min</h4></html>");
         final JTextField selectedRowMinXTextField= new JTextField(2);
-        final JLabel selectedRowMaxXLabel = new JLabel("X Max");
+        final JLabel selectedRowMaxXLabel = new JLabel("<html><style>h4{color:white;}</style><h4>X Max</h4></html>");
         final JTextField selectedRowMaxXTextField= new JTextField(2);
-        final JLabel selectedRowMinYLabel = new JLabel("Y Min");
+        final JLabel selectedRowMinYLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Y Min</h4></html>");
         final JTextField selectedRowMinYTextField= new JTextField(2);
-        final JLabel selectedRowMaxYLabel = new JLabel("Y Max");
+        final JLabel selectedRowMaxYLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Y Max</h4></html>");
         final JTextField selectedRowMaxYTextField= new JTextField(2);
-        final JLabel selectedRowMinZLabel = new JLabel("Z Min");
+        final JLabel selectedRowMinZLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Z Min)</h4></html>");
         final JTextField selectedRowMinZTextField= new JTextField(2);
-        final JLabel selectedRowMaxZLabel = new JLabel("Z Max");
+        final JLabel selectedRowMaxZLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Z Max</h4></html>");
         final JTextField selectedRowMaxZTextField= new JTextField(2);
 
         selectedRowMinXLabel.setEnabled(false);
@@ -141,7 +141,7 @@ public class DeleteRowActionListener implements ActionListener {
         deleteRowFrame.add(mainPanel, BorderLayout.CENTER);
         deleteRowFrame.pack();
         deleteRowFrame.setVisible(true);
-        deleteRowFrame.setLocation(500, 300);
+        deleteRowFrame.setLocation(MainFrame.screenWidth / 3, MainFrame.screenHeight / 4);
 
         okButton.addActionListener(new ActionListener() {
             @Override
@@ -173,15 +173,13 @@ public class DeleteRowActionListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 deleteRowFrame.dispose();
-                MainFrame.deleteRowRadioButton.setEnabled(true);
+                MainFrame.deleteRowColoumnButton.setEnabled(true);
             }
         });
         deleteRowFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         deleteRowFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                MainFrame.deletePlaneRadioButton.setEnabled(true);
-                MainFrame.deleteRowRadioButton.setEnabled(true);
             }
         });
         planeListComboBox.addActionListener(new ActionListener() {

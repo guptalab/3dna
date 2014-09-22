@@ -19,10 +19,15 @@ public class CoordinatesSequenceMap {
 	static ArrayList<DNASequence> randomSequencesList= new ArrayList<DNASequence>();
 	static ArrayList<DNASequence> sequencesList= new ArrayList<DNASequence>();
 	public static ArrayList<XYZCoordinates> coordinatesList= new ArrayList<XYZCoordinates>();
+    static ArrayList<VoxelToBrick> finalData=new ArrayList<VoxelToBrick>();
+    static ArrayList<VoxelToBrick> finalBoundaryData=new ArrayList<VoxelToBrick>();
 	//using a 3d array to store the position for each voxel in the arraylist coordinate-list
 	static int [][][]ivalue=new int[20][20][20];
-	static SaveFinalSequences s;
+    int[][][] newIndex = new int[MainFrame.width][MainFrame.height][MainFrame.depth+2];
     static int i1,i2,i3,i4;
+    int x,y,z,indexfront, indexback;
+    String Tsequence="TTTTTTTT";
+
     //constructor for the class
 	public CoordinatesSequenceMap() {
 
@@ -44,11 +49,25 @@ public class CoordinatesSequenceMap {
 		assignDomain();
 		assignSequences();
         assignProtectorSequences();
-		s=new SaveFinalSequences();
+        finalData.clear();
+        finalBoundaryData.clear();
+        MainFrame.enableGraph();
+        convertToT();
+        removeTVoxels();
+        //set all values in newIndex to -1
+        for(int i = 0; i<MainFrame.width; i++)
+            for(int j = 0; j<MainFrame.height; j++)
+                for(int k = 0; k<=MainFrame.depth; k++)
+                    newIndex [i][j][k] = -1;
+        setBrickList();
+        addHelixNumber();
+
+        if(MainFrame.isBoundaryCalled)
+            attachBoundaryBricks();
 		
 	}
 
-      //This function saves random sequences from SequencesFile.csv to an arraylist - randomSequencesList
+    //STEP 1: fetch random sequences from SequencesFile.csv and save to the arraylist - randomSequencesList
     public static void runRandomSequences() {
 	 
 		String csvFile = "SequencesFile.csv";
@@ -81,11 +100,12 @@ public class CoordinatesSequenceMap {
 		}
 	  }
 
-      //This function checks the random-sequence-list for complementary strands of each domain.
-      //If any such strand is found, its complementary strand is removed from the arraylist.
-      //After checking, all the strands are added to the sequence-list (after changing the length of the strands)
-      //and are ready to be assigned to voxels.
+    //STEP 2: (optional) check if any of the random sequences is a complement of the other
 	public static void removeComplement(){
+        //This function checks the random-sequence-list for complementary strands of each domain.
+        //If any such strand is found, its complementary strand is removed from the arraylist.
+        //After checking, all the strands are added to the sequence-list (after changing the length of the strands)
+        //and are ready to be assigned to voxels.
 		  int i,k;
 		  String complement="";
 		  System.out.println("size of list"+ randomSequencesList.size());
@@ -104,7 +124,7 @@ public class CoordinatesSequenceMap {
               }*/
 	  }
 
-      //Reducing size of sequence length to 8
+    //STEP 3: get rid of null pointer by reducing size of sequence length to 8
 	public static String changesize(String domainSeq) {
 	        String Seq = "";
 	        int stringLength = domainSeq.length();
@@ -124,8 +144,9 @@ public class CoordinatesSequenceMap {
 	        return (Seq);
 	    }
 
-    //this function stores all coordinates into the arrayList coordinatesList and marks them as removed=true or removed=false
+    //STEP 4: save the coordinates of the 3D canvas into the arraylist - coordinatesList and identify the head and tail protector bricks (if enabled)
     public static void addCoordinates(){
+        //this function stores all coordinates into the arrayList coordinatesList and marks them as removed=true or removed=false
         int count=0;
         int x,y,z;
         for(int k = 0; k <= MainFrame.depth; k++)
@@ -202,6 +223,7 @@ public class CoordinatesSequenceMap {
         }
     }
 
+    //STEP 5: identify all the half bricks that can be converted to boundary bricks
     public void identifyBoundaryVoxels(){
         int minX = 0, minY = 0, x, y;
         int maxX = MainFrame.width-1;
@@ -255,7 +277,7 @@ public class CoordinatesSequenceMap {
             }
     }
 
-    //This function assigns orientation for all voxels in the coordinate-list
+    //STEP 6: Assign orientation for all voxels in the coordinatesList
 	public static void assignOrientation(){
 		for(int i=0;i<coordinatesList.size();i++){
 			if(coordinatesList.get(i).z%4==0){
@@ -274,7 +296,7 @@ public class CoordinatesSequenceMap {
 		}
 	}
 
-	//This function assigns domain numbers (1-2 or 3-4) to each voxel in the coordinate-list
+	//STEP 7: Assign domain numbers (1-2 or 3-4) to each voxel in the coordinate-list
 	public static void assignDomain(){
 
 		for(int i=0;i<coordinatesList.size();i++){
@@ -395,10 +417,9 @@ public class CoordinatesSequenceMap {
 		}
 	}
 
-    //This function assigns sequences to the domains in the coordinate-list after checking the GC content.
-    //NOTE: all domains are assigned sequences whether they have been deleted or not.
+    //STEP 8: Assign sequences to the domains in the coordinate-list after checking the GC content.
 	public static void assignSequences(){
-
+    //NOTE: all domains are assigned sequences whether they have been deleted or not.
 		for(int i=0;i<coordinatesList.size();i++){
 
 	        //System.out.println("assigning for "+coordinatesList.get(i).x+""+coordinatesList.get(i).y+
@@ -488,7 +509,7 @@ public class CoordinatesSequenceMap {
 		}
 	}
 
-    //this function assigns T sequences to protector bricks
+    //STEP 9: Assign T sequences to protector bricks
     public static void assignProtectorSequences(){
         String Tsequence="TTTTTTTT";
         if(MainFrame.isMinZProtectorPlaneEnabled){
@@ -537,7 +558,7 @@ public class CoordinatesSequenceMap {
 
     }
 
-    //This function gets a random DNA sequence from the seq-list to assigns it to a voxel in the coordinate-list.
+    //STEP 10: Get a random DNA sequence from the seq-list and assign it to a voxel in the coordinate-list.
 	public static String AssignRandom(int domain){
 
 		Random rand = new Random(); 
@@ -585,7 +606,7 @@ public class CoordinatesSequenceMap {
         return isMatching;
     }
 
-    //This function checks the GC content of the DNA sequence
+    //Used in STEP 8. This function checks the GC content of the DNA sequence
     public static boolean checkGCContent(String d1, String d2){
 
         int l1=d1.length();
@@ -614,8 +635,8 @@ public class CoordinatesSequenceMap {
 
     }
 
-    //This function returns the complementary reverse sequence of a given DNA string.
-	 public static String negateSeqRev(String domainSeq) {
+    //Used in STEP 8. This function returns the complementary reverse sequence of a given DNA string.
+	public static String negateSeqRev(String domainSeq) {
 	        String Seq = "";
 	        int stringLength = domainSeq.length();
 
@@ -633,8 +654,8 @@ public class CoordinatesSequenceMap {
 	        return (Seq);
 	    }
 
-        //this function is not being used !!!
-	    public static String negateSeq(String domainSeq) {
+    //this function is not being used !!!
+	public static String negateSeq(String domainSeq) {
 	        String negateSeq = "";
 	        int stringLength = domainSeq.length();
 	        System.out.println("StringLength:"+stringLength);
@@ -651,4 +672,412 @@ public class CoordinatesSequenceMap {
 	        }
 	        return (negateSeq);
 	    }
+
+    //STEP 11: Replace the remaining complementary strands of the deleted voxels with (8-length) poly-T sequences.
+    public void convertToT(){
+        for(int i=0;i<coordinatesList.size();i++){
+            x=coordinatesList.get(i).x;
+            y=coordinatesList.get(i).y;
+            z=coordinatesList.get(i).z;
+
+            if(coordinatesList.get(i).isRemoved==true ){
+                //System.out.println("Removed found in convert-to-T:"+x+""+y+""+z);
+                if(z > 0&& MainFrame.isMinZProtectorPlaneEnabled || z>1&&!MainFrame.isMinZProtectorPlaneEnabled){
+                    indexback=ivalue[x][y][z-1];
+                    if(coordinatesList.get(indexback).isRemoved == false){
+                        //System.out.println("Searching in convert-to-T:"+x+""+y+""+(z-1));
+                        if(coordinatesList.get(i).domain==34)
+                            coordinatesList.get(indexback).Domain1=coordinatesList.
+                                    get(indexback).Domain1.replace(coordinatesList.get(indexback).Domain1, Tsequence);
+
+                        else
+                            coordinatesList.get(indexback).Domain4=coordinatesList.
+                                    get(indexback).Domain4.replace(coordinatesList.get(indexback).Domain4, Tsequence);
+                    }
+                }
+                if(z <MainFrame.depth){
+                    indexfront=ivalue[x][y][z+1];
+                    if(coordinatesList.get(indexfront).isRemoved == false){
+                        //System.out.println("Searching in convert-to-T:"+x+""+y+""+(z+1));
+                        if(coordinatesList.get(i).domain==34)
+                            coordinatesList.get(indexfront).Domain2=coordinatesList.get(indexfront).Domain2.replace
+                                    (coordinatesList.get(indexfront).Domain2, Tsequence);
+
+                        else
+                            coordinatesList.get(indexfront).Domain3=coordinatesList.get(indexfront).Domain3.replace
+                                    (coordinatesList.get(indexfront).Domain3, Tsequence);
+                    }
+                }
+            }
+        }
+    }
+
+    //STEP 12: Identify and remove those voxels which have d3&d4 OR d1&d2 as T-sequences (i.e., when an entire voxel is composed of only Thymidine).
+    public void removeTVoxels(){
+        //System.out.println("Size of the arraylist: "+coordinatesList.size());
+        for(int i=0;i<coordinatesList.size();i++){
+
+            x=coordinatesList.get(i).x;
+            y=coordinatesList.get(i).y;
+            z=coordinatesList.get(i).z;
+            //System.out.println("trying to access "+x+""+y+""+z);
+            if(coordinatesList.get(i).isRemoved==false){
+                if(coordinatesList.get(i).domain==34){
+                    if(coordinatesList.get(i).Domain3.equals(Tsequence)&&
+                            coordinatesList.get(i).Domain4.equals(Tsequence)){
+                        //System.out.println("removed in removeTVoxels:"+x+""+y+""+z);
+                        coordinatesList.get(i).isRemoved=true;
+                    }
+                }
+                else if(coordinatesList.get(i).domain==12){
+                    if(coordinatesList.get(i).Domain1.equals(Tsequence)&&
+                            coordinatesList.get(i).Domain2.equals(Tsequence)){
+                        //System.out.println("removed in removeTVoxels:"+x+""+y+""+z);
+                        coordinatesList.get(i).isRemoved=true;
+                    }
+                }
+            }
+        }
+    }
+
+    //STEP 13: Combine voxels to form bricks of size=2 voxels, set them as full bricks and save them in the finalData list.
+    public void setBrickList(){
+        int x,y,z;
+        int brickCounter = 0;
+        for(int i=0;i<coordinatesList.size();i++){
+
+            if(coordinatesList.get(i).isRemoved==false){
+
+                x = coordinatesList.get(i).x;
+                y = coordinatesList.get(i).y;
+                z = coordinatesList.get(i).z;
+
+                //Adding half-bricks with domains 3 and 4 to the final-coordinate-list.
+                if(coordinatesList.get(i).isHalfBrick){
+                    if(coordinatesList.get(i).domain==34) {
+                        finalData.add(new VoxelToBrick(-1, -1, -1, x, y, z, null, null,
+                                coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                    }
+                    else {
+                        finalData.add(new VoxelToBrick(x, y, z, -1, -1, -1, coordinatesList.get(i).Domain1,
+                                coordinatesList.get(i).Domain2, null, null));
+                    }
+                    finalData.get(brickCounter).isBottommostHalfBrick = coordinatesList.get(i).isBottommostBrick;
+                    finalData.get(brickCounter).isTopmostHalfBrick = coordinatesList.get(i).isTopmostBrick;
+                    finalData.get(brickCounter).isLeftmostHalfBrick = coordinatesList.get(i).isLeftmostBrick;
+                    finalData.get(brickCounter).isRightmostHalfBrick = coordinatesList.get(i).isRightmostBrick;
+                    /*System.out.println("%%%%%% half brick identified at ["+finalData.get(brickCounter).x2+" "
+                            +finalData.get(brickCounter).y2+" "+finalData.get(brickCounter).z2+" "
+                            +finalData.get(brickCounter).x3+" "+finalData.get(brickCounter).y3+" "
+                            +finalData.get(brickCounter).z3+"] %%%%%%%");*/
+                }
+                else{
+                    //Identifying full and half north-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='n'){
+                        if(coordinatesList.get(i).domain==34){
+                            if(coordinatesList.get(ivalue[x][y+1][z]).isRemoved==false){
+
+                                finalData.add(new VoxelToBrick(x,y+1,z,x,y,z,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain1,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain2,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+
+                                coordinatesList.get(ivalue[x][y+1][z]).isRemoved=true;
+                                newIndex[x][y+1][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                                /*System.out.println("??????not half brick identified at ["+finalData.get(brickCounter).x2+" "
+                                        +finalData.get(brickCounter).y2+" "+finalData.get(brickCounter).z2+" "
+                                        +finalData.get(brickCounter).x3+" "+finalData.get(brickCounter).y3+" "
+                                        +finalData.get(brickCounter).z3+"] ??????");*/
+                            }
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x][y-1][z]).isRemoved==false){
+
+                                finalData.add(new VoxelToBrick(x,y,z,x,y-1,z,
+                                        coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain3,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain4));
+
+                                coordinatesList.get(ivalue[x][y-1][z]).isRemoved=true;
+                                newIndex[x][y-1][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2, null, null));
+                                /*System.out.println("??????not half brick identified at ["+finalData.get(brickCounter).x2+" "
+                                        +finalData.get(brickCounter).y2+" "+finalData.get(brickCounter).z2+" "
+                                        +finalData.get(brickCounter).x3+" "+finalData.get(brickCounter).y3+" "
+                                        +finalData.get(brickCounter).z3+"] ??????");*/
+                            }
+
+                        }
+                    }
+
+                    //Identifying full and half west-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='w'){
+                        if(coordinatesList.get(i).domain==34){
+                            if(coordinatesList.get(ivalue[x+1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x+1,y,z,x,y,z,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain1,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain2,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+
+                                coordinatesList.get(ivalue[x+1][y][z]).isRemoved=true;
+                                newIndex[x+1][y][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                                /*System.out.println("??????not half brick identified at ["+finalData.get(brickCounter).x2+" "
+                                        +finalData.get(brickCounter).y2+" "+finalData.get(brickCounter).z2+" "
+                                        +finalData.get(brickCounter).x3+" "+finalData.get(brickCounter).y3+" "
+                                        +finalData.get(brickCounter).z3+"] ??????");*/
+                            }
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x-1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x-1,y,z,
+                                        coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain3,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain4));
+
+                                coordinatesList.get(ivalue[x-1][y][z]).isRemoved=true;
+                                newIndex[x-1][y][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2, null, null));
+                            }
+                        }
+                    }
+
+                    //Identifying full and half south-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='s'){
+                        if(coordinatesList.get(i).domain==12){
+                            if(coordinatesList.get(ivalue[x][y+1][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x,y+1,z,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain3,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x][y+1][z]).isRemoved=true;
+                                newIndex[x][y+1][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2));
+                            }
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x][y-1][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y-1,z,x,y,z,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain1,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain2,
+                                        coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x][y-1][z]).isRemoved=true;
+                                newIndex[x][y-1][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z, null, null,coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4));
+                            }
+                        }
+                    }
+                    //Identifying full and half east-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='e'){
+                        if(coordinatesList.get(i).domain==12){
+                            if(coordinatesList.get(ivalue[x+1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x+1,y,z,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain3,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x+1][y][z]).isRemoved=true;
+                                newIndex[x+1][y][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,null, null,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2));
+                            }
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x-1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x-1,y,z,x,y,z,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain1,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain2,
+                                        coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x-1][y][z]).isRemoved=true;
+                                newIndex[x-1][y][z] = brickCounter;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4));
+                            }
+
+                        }
+                    }
+                }
+                //Remove the individual voxel after combining it as a full brick in the final-coordinate-list.
+                coordinatesList.get(i).isRemoved=true;
+                newIndex[x][y][z] = brickCounter;
+                brickCounter++;
+            }
+
+        }
+    }
+
+    //STEP 14: Assign helix number to each voxel
+    public void addHelixNumber(){
+        int x2, x3, y2, y3;
+
+        for (int i = 0; i<finalData.size(); i++) {
+            x2= finalData.get(i).x2;
+            x3= finalData.get(i).x3;
+            y2= finalData.get(i).y2;
+            y3= finalData.get(i).y3;
+            if (x2!=-1) {
+                if(y2==0) {
+                    finalData.get(i).helix1 = x2;
+                    finalData.get(i).helix2 = x2;
+                }
+                else if (y2%2==1) {
+                    finalData.get(i).helix1 = (y2 + 1) * MainFrame.width - (x2 + 1);
+                    finalData.get(i).helix2 = finalData.get(i).helix1;
+
+                }
+                else {
+                    finalData.get(i).helix1 = MainFrame.width * y2 + x2;
+                    finalData.get(i).helix2 = finalData.get(i).helix1;
+                }
+            }
+            if (x3!=-1){
+                if(y3==0) {
+                    finalData.get(i).helix3 = x3;
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+                else if (y3%2==1) {
+                    finalData.get(i).helix3 = (y3 + 1) * MainFrame.width - (x3 + 1);
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+                else {
+                    finalData.get(i).helix3 = MainFrame.width * y3 + x3;
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+            }
+        }
+    }
+
+    //STEP 15: If set boundary bricks option is enabled, combine bricks to form 48-nt boundary bricks
+    public void attachBoundaryBricks(){
+
+        int x,y,z;
+        int fullBrickIndex;
+        String d1,d2;
+        int h5, h6;
+
+        finalBoundaryData = finalData;
+        for(int i = 0; i < finalBoundaryData.size(); i++){
+            if(finalBoundaryData.get(i).isLeftmostHalfBrick || finalBoundaryData.get(i).isBottommostHalfBrick || finalBoundaryData.get(i).isTopmostHalfBrick ||
+                    finalBoundaryData.get(i).isRightmostHalfBrick) {
+                if (finalBoundaryData.get(i).x2 != -1) {
+                    x = finalBoundaryData.get(i).x2;
+                    y = finalBoundaryData.get(i).y2;
+                    z = finalBoundaryData.get(i).z2;
+                    System.out.println(x + " " + y + " " + z + "  " + finalBoundaryData.get(i).Domain1);
+                    d1 = new String(finalBoundaryData.get(i).Domain1);
+                    d2 = new String(finalBoundaryData.get(i).Domain2);
+                    h5 = finalBoundaryData.get(i).helix2;
+                    h6 = finalBoundaryData.get(i).helix1;
+                } else {
+                    x = finalBoundaryData.get(i).x3;
+                    y = finalBoundaryData.get(i).y3;
+                    z = finalBoundaryData.get(i).z3;
+                    d1 = new String(finalBoundaryData.get(i).Domain3);
+                    d2 = new String(finalBoundaryData.get(i).Domain4);
+                    h5 = finalBoundaryData.get(i).helix3;
+                    h6 = finalBoundaryData.get(i).helix4;
+                }
+                if (MainFrame.isMinXBoundaryPlaneEnabled && finalBoundaryData.get(i).isLeftmostHalfBrick && z != 1 && finalBoundaryData.get(i).isRemovedAsBoundary == false) {
+                    fullBrickIndex = newIndex[x][y][z - 2];
+                    if (fullBrickIndex != -1) {
+
+                        if (finalBoundaryData.get(fullBrickIndex).x1 == x && finalBoundaryData.get(fullBrickIndex).y1 == y)
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 12);
+
+                        else
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 34);
+
+                        finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                        finalBoundaryData.get(i).isRemovedAsBoundary = true;
+                        finalBoundaryData.get(i).isLeftmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for min x at" + x + " " + y + " " + z);
+                    }
+                }
+                if (MainFrame.isMaxXBoundaryPlaneEnabled && finalBoundaryData.get(i).isRightmostHalfBrick && z != 1 && finalBoundaryData.get(i).isRemovedAsBoundary == false) {
+                    fullBrickIndex = newIndex[x][y][z - 2];
+                    if (fullBrickIndex != -1) {
+                        if (finalBoundaryData.get(fullBrickIndex).x1 == x && finalBoundaryData.get(fullBrickIndex).y1 == y)
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 12);
+
+                        else
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 34);
+                        finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                        finalBoundaryData.get(i).isRemovedAsBoundary = true;
+                        finalBoundaryData.get(i).isLeftmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for max x at" + x + " " + y + " " + z);
+                    }
+                }
+                if (MainFrame.isMinYBoundaryPlaneEnabled && finalBoundaryData.get(i).isTopmostHalfBrick && z != 1 && finalBoundaryData.get(i).isRemovedAsBoundary == false) {
+                    fullBrickIndex = newIndex[x][y][z - 2];
+                    if (fullBrickIndex != -1) {
+                        if (finalBoundaryData.get(fullBrickIndex).x1 == x && finalBoundaryData.get(fullBrickIndex).y1 == y)
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 12);
+
+                        else
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 34);
+                        finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                        finalBoundaryData.get(i).isRemovedAsBoundary = true;
+                        finalBoundaryData.get(i).isLeftmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for min y at" + x + " " + y + " " + z);
+                    }
+                }
+                if (MainFrame.isMaxYBoundaryPlaneEnabled && finalBoundaryData.get(i).isBottommostHalfBrick && z != 1 && finalBoundaryData.get(i).isRemovedAsBoundary == false) {
+                    fullBrickIndex = newIndex[x][y][z - 2];
+                    if (fullBrickIndex != -1) {
+                        if (finalBoundaryData.get(fullBrickIndex).x1 == x && finalBoundaryData.get(fullBrickIndex).y1 == y)
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 12);
+
+                        else
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z, d1, d2, h5, h6, 34);
+                        finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                        finalBoundaryData.get(i).isRemovedAsBoundary = true;
+                        finalBoundaryData.get(i).isLeftmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for max y at" + x + " " + y + " " + z);
+                    }
+                }
+            }
+        }
+
+        int s = finalBoundaryData.size();
+        for(int i=0;i<s;i++){
+            if(finalBoundaryData.get(i).isRemovedAsBoundary == true){
+                finalBoundaryData.remove(i);
+                s--;
+            }
+        }
+    }
 }

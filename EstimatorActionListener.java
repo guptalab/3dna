@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 public class EstimatorActionListener implements ActionListener {
 
     public CoordinatesSequenceMap c;
-    static ArrayList<VoxelToBrick> DNASequenceData=SaveFinalSequences.finalData;
+    static ArrayList<VoxelToBrick> DNASequenceData=CoordinatesSequenceMap.finalData;
     @Override
     public void actionPerformed(ActionEvent e) {
         c=new CoordinatesSequenceMap();

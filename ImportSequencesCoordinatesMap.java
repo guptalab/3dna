@@ -16,24 +16,24 @@ public class ImportSequencesCoordinatesMap {
     static ArrayList<HelixAndCoordinates> halfBrickSequencesList = new ArrayList<HelixAndCoordinates>();
     static ArrayList<HelixAndCoordinates> boundaryBrickSequencesList = new ArrayList<HelixAndCoordinates>();
     public static ArrayList<XYZCoordinates> coordinatesList = new ArrayList<XYZCoordinates>();
-
+    static ArrayList<VoxelToBrick> finalData=new ArrayList<VoxelToBrick>();
+    static ArrayList<VoxelToBrick> finalBoundaryData=new ArrayList<VoxelToBrick>();
     //using a 3d array to store the position for each voxel in the arraylist coordinate-list
     static int[][][] ivalue = new int[20][20][20];
-    static SetSequencesFromFile s;
-//	static SaveExcelFile excel;
+    int[][][] newIndex = new int[MainFrame.width][MainFrame.height][MainFrame.depth+2];
+    int x,y,z,indexfront, indexback;
+    String Tsequence="TTTTTTTT";
+
+
 
     //constructor for the class
     public ImportSequencesCoordinatesMap() {
-
-
-        //System.out.println("Coordinate-sequence-map called");
         //clear all arraylists
         coordinatesList.clear();
         for (int k = 0; k <= MainFrame.depth; k++)
             for (int j = 0; j < MainFrame.height; j++)
                 for (int i = 0; i < MainFrame.width; i++)
                     ivalue[i][j][k] = -1;
-        System.out.println("*********ImportSequencesCoordinatesMap called");
         readFullBrickSequences();
         readHalfBrickSequences();
         readBoundaryBrickSequences();
@@ -42,16 +42,29 @@ public class ImportSequencesCoordinatesMap {
         assignOrientation();
         assignDomain();
         assignNullSequences();
-        s = new SetSequencesFromFile();
-        System.out.println("*********ImportSequencesCoordinatesMap completed");
+
+        finalData.clear();
+        MainFrame.enableGraph();
+        convertToT();
+        //removeTVoxels();
+        //set all values in newIndex to -1
+        for(int i = 0; i<MainFrame.width; i++)
+            for(int j = 0; j<MainFrame.height; j++)
+                for(int k = 0; k<=MainFrame.depth; k++)
+                    newIndex [i][j][k] = -1;
+        setBrickList();
+        addHelixNumber();
+        mapSequencesFromList();
+        if(MainFrame.isBoundaryCalled)
+            attachBoundaryBricks();
 
     }
 
-    //This function saves sequences, helix and coordinates from 16ntFile.csv to an arraylist - FullBrickSequencesList
+    //STEP 1: Save sequences, helix and coordinates from 16ntFile.csv to an arraylist - FullBrickSequencesList
     public static void readFullBrickSequences() {
         int fullBrickCounter = 0;
         fullBrickSequencesList.clear();
-        String csvFile = "32ntFile.csv";
+        String csvFile = MainFrame.importedFullBrickFilePath;
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
@@ -87,12 +100,12 @@ public class ImportSequencesCoordinatesMap {
         }
     }
 
-    //This function saves sequences, helix and coordinates from 16ntFile.csv to an arraylist - HalfBrickSequencesList
+    //STEP 2: Save sequences, helix and coordinates from 16ntFile.csv to an arraylist - HalfBrickSequencesList
     public static void readHalfBrickSequences() {
 
         int halfBrickCounter = 0;
         halfBrickSequencesList.clear();
-        String csvFile = "16ntFile.csv";
+        String csvFile = MainFrame.importedHalfBrickFilePath;
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
@@ -127,12 +140,12 @@ public class ImportSequencesCoordinatesMap {
         }
     }
 
-    //This function saves sequences, helix and coordinates from 48ntFile.csv to an arraylist - boundaryBrickSequencesList
+    //STEP 3: Save sequences, helix and coordinates from 48ntFile.csv to an arraylist - boundaryBrickSequencesList
     public static void readBoundaryBrickSequences() {
 
         int boundaryBrickCounter = 0;
         boundaryBrickSequencesList.clear();
-        String csvFile = "48ntFile.csv";
+        String csvFile = MainFrame.importedBoundaryBrickFilePath;
         BufferedReader br = null;
         String line = "";
         String cvsSplitBy = ";";
@@ -169,7 +182,7 @@ public class ImportSequencesCoordinatesMap {
         }
     }
 
-    //this function stores all coordinates into the arrayList coordinatesList and marks them as removed=true or removed=false
+    //STEP 4: Store all coordinates into the arrayList coordinatesList, identify head and tail protector bricks and mark all bricks as removed=true or removed=false.
     public static void addCoordinates() {
 
         System.out.println("add coordinates called. coordinatesList size:"+ coordinatesList.size());
@@ -251,6 +264,7 @@ public class ImportSequencesCoordinatesMap {
         }
     }
 
+    //STEP 5: identify all the half bricks that can be converted to boundary bricks
     public void identifyBoundaryVoxels() {
         int minX = 0, minY = 0, x, y;
         int maxX = MainFrame.width - 1;
@@ -304,7 +318,7 @@ public class ImportSequencesCoordinatesMap {
             }
     }
 
-    //This function assigns orientation for all voxels in the coordinate-list
+    //STEP 6: Assign orientation for all voxels in the coordinatesList
     public static void assignOrientation() {
         for (int i = 0; i < coordinatesList.size(); i++) {
             if (coordinatesList.get(i).z % 4 == 0) {
@@ -320,7 +334,7 @@ public class ImportSequencesCoordinatesMap {
         }
     }
 
-    //This function assigns domain numbers (1-2 or 3-4) to each voxel in the coordinate-list
+    //STEP 7: Assign domain numbers (1-2 or 3-4) to each voxel in the coordinate-list
     public static void assignDomain() {
 
         for (int i = 0; i < coordinatesList.size(); i++) {
@@ -423,12 +437,13 @@ public class ImportSequencesCoordinatesMap {
                 } else
                     coordinatesList.get(i).editdomain(34);
             }
-        if(coordinatesList.get(i).isHalfBrick && (coordinatesList.get(i).isHeadBrick || coordinatesList.get(i).isTailBrick))
-            coordinatesList.get(i).isRemoved = true;
+        //if(coordinatesList.get(i).isHalfBrick && (coordinatesList.get(i).isHeadBrick || coordinatesList.get(i).isTailBrick))
+        //    coordinatesList.get(i).isRemoved = true;
         }
 
     }
 
+    //STEP 8: Assign all sequences as null by default
     public static void assignNullSequences(){
 
         for(int i=0;i<coordinatesList.size();i++){
@@ -439,6 +454,744 @@ public class ImportSequencesCoordinatesMap {
             coordinatesList.get(i).Domain4=null;
 
         }
+    }
+
+    //STEP 9: Replace the remaining complementary strands of the deleted voxels with (8-length) poly-T sequences.
+    public void convertToT(){
+        for(int i=0;i<coordinatesList.size();i++){
+            x=coordinatesList.get(i).x;
+            y=coordinatesList.get(i).y;
+            z=coordinatesList.get(i).z;
+
+            if(coordinatesList.get(i).isRemoved==true ){
+                System.out.println("Removed found in convert-to-T:"+x+""+y+""+z);
+                if(z > 0&& MainFrame.isMinZProtectorPlaneEnabled || z>1&&!MainFrame.isMinZProtectorPlaneEnabled){
+                    indexback=ivalue[x][y][z-1];
+                    if(coordinatesList.get(indexback).isRemoved == false){
+                        System.out.println("Searching in convert-to-T:"+x+""+y+""+(z-1));
+                        if(coordinatesList.get(i).domain==34)
+                            coordinatesList.get(indexback).isDomain1Replaced = true;
+
+                        else
+                            coordinatesList.get(indexback).isDomain4Replaced = true;
+                    }
+                }
+                if(z <MainFrame.depth){
+                    indexfront=ivalue[x][y][z+1];
+                    if(coordinatesList.get(indexfront).isRemoved == false){
+                        System.out.println("Searching in convert-to-T:"+x+""+y+""+(z+1));
+                        if(coordinatesList.get(i).domain==34)
+                            coordinatesList.get(indexfront).isDomain2Replaced = true;
+
+                        else
+                            coordinatesList.get(indexfront).isDomain3Replaced = true;
+                    }
+                }
+            }
+        }
+    }
+
+    //STEP 10: Identify and remove those voxels which have d3&d4 OR d1&d2 as T-sequences (i.e., when an entire voxel is composed of only Thymidine).
+    public void removeTVoxels(){
+        for(int i=0;i<coordinatesList.size();i++){
+
+            x=coordinatesList.get(i).x;
+            y=coordinatesList.get(i).y;
+            z=coordinatesList.get(i).z;
+
+            if(coordinatesList.get(i).isRemoved==false){
+                if(coordinatesList.get(i).domain==34){
+                    if(coordinatesList.get(i).Domain3.equals(Tsequence)&&
+                            coordinatesList.get(i).Domain4.equals(Tsequence)){
+                        System.out.println("removed in removeTVoxels:"+x+""+y+""+z);
+                        coordinatesList.get(i).isRemoved=true;
+                    }
+                }
+                else if(coordinatesList.get(i).domain==12){
+                    if(coordinatesList.get(i).Domain1.equals(Tsequence)&&
+                            coordinatesList.get(i).Domain2.equals(Tsequence)){
+                        System.out.println("removed in removeTVoxels:"+x+""+y+""+z);
+                        coordinatesList.get(i).isRemoved=true;
+                    }
+                }
+            }
+        }
+    }
+
+    //STEP 11: Combine voxels to form bricks of size=2 voxels, set them as full bricks and save them in the finalData list.
+    public void setBrickList(){
+        System.out.println("SetbrickList called");
+        int x,y,z;
+        int brickCounter = 0;
+        for(int i=0;i<coordinatesList.size();i++){
+
+            if(coordinatesList.get(i).isRemoved==false){
+
+                x = coordinatesList.get(i).x;
+                y = coordinatesList.get(i).y;
+                z = coordinatesList.get(i).z;
+
+                //Adding half-bricks with domains 3 and 4 to the final-coordinate-list.
+                if(coordinatesList.get(i).isHalfBrick){
+                    if(coordinatesList.get(i).domain==34) {
+                        finalData.add(new VoxelToBrick(-1, -1, -1, x, y, z, null, null,
+                                coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                        finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(i).isDomain3Replaced;
+                        finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(i).isDomain4Replaced;
+                    }
+                    else {
+                        finalData.add(new VoxelToBrick(x, y, z, -1, -1, -1, coordinatesList.get(i).Domain1,
+                                coordinatesList.get(i).Domain2, null, null));
+                        finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(i).isDomain1Replaced;
+                        finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(i).isDomain2Replaced;
+                    }
+                    finalData.get(brickCounter).isBottommostHalfBrick = coordinatesList.get(i).isBottommostBrick;
+                    finalData.get(brickCounter).isTopmostHalfBrick = coordinatesList.get(i).isTopmostBrick;
+                    finalData.get(brickCounter).isLeftmostHalfBrick = coordinatesList.get(i).isLeftmostBrick;
+                    finalData.get(brickCounter).isRightmostHalfBrick = coordinatesList.get(i).isRightmostBrick;
+                    /*System.out.println("%%%%%% half brick identified at ["+finalData.get(brickCounter).x2+" "
+                            +finalData.get(brickCounter).y2+" "+finalData.get(brickCounter).z2+" "
+                            +finalData.get(brickCounter).x3+" "+finalData.get(brickCounter).y3+" "
+                            +finalData.get(brickCounter).z3+"] %%%%%%%");*/
+                }
+                else{
+                    //Identifying full and half north-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='n'){
+                        if(coordinatesList.get(i).domain==34){
+                            if(coordinatesList.get(ivalue[x][y+1][z]).isRemoved==false){
+
+                                finalData.add(new VoxelToBrick(x,y+1,z,x,y,z,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain1,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain2,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+
+                                coordinatesList.get(ivalue[x][y+1][z]).isRemoved=true;
+                                newIndex[x][y+1][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(ivalue[x][y+1][z]).isDomain1Replaced;
+                                finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(ivalue[x][y+1][z]).isDomain2Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                            }
+                            finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(i).isDomain3Replaced;
+                            finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(i).isDomain4Replaced;
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x][y-1][z]).isRemoved==false){
+
+                                finalData.add(new VoxelToBrick(x,y,z,x,y-1,z,
+                                        coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain3,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain4));
+
+                                coordinatesList.get(ivalue[x][y-1][z]).isRemoved=true;
+                                newIndex[x][y-1][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(ivalue[x][y-1][z]).isDomain3Replaced;
+                                finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(ivalue[x][y-1][z]).isDomain4Replaced;
+
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2, null, null));
+                            }
+
+                            finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(i).isDomain1Replaced;
+                            finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(i).isDomain2Replaced;
+
+                        }
+                    }
+
+                    //Identifying full and half west-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='w'){
+                        if(coordinatesList.get(i).domain==34){
+                            if(coordinatesList.get(ivalue[x+1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x+1,y,z,x,y,z,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain1,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain2,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+
+                                coordinatesList.get(ivalue[x+1][y][z]).isRemoved=true;
+                                newIndex[x+1][y][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(ivalue[x+1][y][z]).isDomain1Replaced;
+                                finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(ivalue[x+1][y][z]).isDomain2Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain3, coordinatesList.get(i).Domain4));
+                            }
+                            finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(i).isDomain3Replaced;
+                            finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(i).isDomain4Replaced;
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x-1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x-1,y,z,
+                                        coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain3,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain4));
+
+                                coordinatesList.get(ivalue[x-1][y][z]).isRemoved=true;
+                                newIndex[x-1][y][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(ivalue[x-1][y][z]).isDomain3Replaced;
+                                finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(ivalue[x-1][y][z]).isDomain4Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,coordinatesList.get(i).Domain1,
+                                        coordinatesList.get(i).Domain2, null, null));
+                            }
+                            finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(i).isDomain1Replaced;
+                            finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(i).isDomain2Replaced;
+                        }
+                    }
+
+                    //Identifying full and half south-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='s'){
+                        if(coordinatesList.get(i).domain==12){
+                            if(coordinatesList.get(ivalue[x][y+1][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x,y+1,z,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain3,
+                                        coordinatesList.get(ivalue[x][y+1][z]).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x][y+1][z]).isRemoved=true;
+                                newIndex[x][y+1][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(ivalue[x][y+1][z]).isDomain3Replaced;
+                                finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(ivalue[x][y+1][z]).isDomain4Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2));
+                            }
+                            finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(i).isDomain1Replaced;
+                            finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(i).isDomain2Replaced;
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x][y-1][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y-1,z,x,y,z,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain1,
+                                        coordinatesList.get(ivalue[x][y-1][z]).Domain2,
+                                        coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x][y-1][z]).isRemoved=true;
+                                newIndex[x][y-1][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(ivalue[x][y-1][z]).isDomain1Replaced;
+                                finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(ivalue[x][y-1][z]).isDomain2Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z, null, null,coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4));
+                            }
+                            finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(i).isDomain3Replaced;
+                            finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(i).isDomain4Replaced;
+                        }
+                    }
+                    //Identifying full and half east-bricks and adding them to the final-coordinate-list.
+                    if(coordinatesList.get(i).orientation=='e'){
+                        if(coordinatesList.get(i).domain==12){
+                            if(coordinatesList.get(ivalue[x+1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x,y,z,x+1,y,z,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain3,
+                                        coordinatesList.get(ivalue[x+1][y][z]).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x+1][y][z]).isRemoved=true;
+                                newIndex[x+1][y][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(ivalue[x+1][y][z]).isDomain3Replaced;
+                                finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(ivalue[x+1][y][z]).isDomain4Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(x,y,z,-1,-1,-1,null, null,
+                                        coordinatesList.get(i).Domain1, coordinatesList.get(i).Domain2));
+                            }
+                            finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(i).isDomain1Replaced;
+                            finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(i).isDomain2Replaced;
+
+                        }
+                        else{
+                            if(coordinatesList.get(ivalue[x-1][y][z]).isRemoved==false){
+                                finalData.add(new VoxelToBrick(x-1,y,z,x,y,z,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain1,
+                                        coordinatesList.get(ivalue[x-1][y][z]).Domain2,
+                                        coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4
+                                ));
+
+                                coordinatesList.get(ivalue[x-1][y][z]).isRemoved=true;
+                                newIndex[x-1][y][z] = brickCounter;
+                                finalData.get(brickCounter).isDomain1Replaced = coordinatesList.get(ivalue[x-1][y][z]).isDomain1Replaced;
+                                finalData.get(brickCounter).isDomain2Replaced = coordinatesList.get(ivalue[x-1][y][z]).isDomain2Replaced;
+                            }
+                            else{
+                                finalData.add(new VoxelToBrick(-1,-1,-1,x,y,z,null, null,coordinatesList.get(i).Domain3,
+                                        coordinatesList.get(i).Domain4));
+                            }
+                            finalData.get(brickCounter).isDomain3Replaced = coordinatesList.get(i).isDomain3Replaced;
+                            finalData.get(brickCounter).isDomain4Replaced = coordinatesList.get(i).isDomain4Replaced;
+
+                        }
+                    }
+                }
+                //Remove the individual voxel after combining it as a full brick in the final-coordinate-list.
+                coordinatesList.get(i).isRemoved=true;
+                newIndex[x][y][z] = brickCounter;
+                brickCounter++;
+            }
+
+        }
+    }
+
+    //STEP 12: Assign helix number to each voxel
+    public void addHelixNumber(){
+        int x2, x3, y2, y3;
+
+        for (int i = 0; i<finalData.size(); i++) {
+            x2= finalData.get(i).x2;
+            x3= finalData.get(i).x3;
+            y2= finalData.get(i).y2;
+            y3= finalData.get(i).y3;
+            if (x2!=-1) {
+                if(y2==0) {
+                    finalData.get(i).helix1 = x2;
+                    finalData.get(i).helix2 = x2;
+                }
+                else if (y2%2==1) {
+                    finalData.get(i).helix1 = (y2 + 1) * MainFrame.width - (x2 + 1);
+                    finalData.get(i).helix2 = finalData.get(i).helix1;
+
+                }
+                else {
+                    finalData.get(i).helix1 = MainFrame.width * y2 + x2;
+                    finalData.get(i).helix2 = finalData.get(i).helix1;
+                }
+            }
+            if (x3!=-1){
+                if(y3==0) {
+                    finalData.get(i).helix3 = x3;
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+                else if (y3%2==1) {
+                    finalData.get(i).helix3 = (y3 + 1) * MainFrame.width - (x3 + 1);
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+                else {
+                    finalData.get(i).helix3 = MainFrame.width * y3 + x3;
+                    finalData.get(i).helix4 = finalData.get(i).helix3;
+                }
+            }
+        }
+    }
+
+    //STEP 13: Map each coordinate to DNA sequence fetched from the imported file
+    public void mapSequencesFromList(){
+        int index = -1;
+        int h1, h2, h3, h4, z1, z2, z3, z4;
+        boolean domain1Replacement, domain2Replacement, domain3Replacement, domain4Replacement;
+
+        for(int i = 0; i<finalData.size(); i++){
+            index = -1;
+            //identifying half-bricks having domains 34
+            if(finalData.get(i).x2==-1){
+                h3 = finalData.get(i).helix3;
+                h4 = h3;
+                z3 = finalData.get(i).z3;
+                z4 = z3+1;
+
+                for(int j = 0; j<halfBrickSequencesList.size(); j++){
+                    if (halfBrickSequencesList.get(j).helix1 == h3&&
+                            halfBrickSequencesList.get(j).zCoordinate1 == z3&&
+                            halfBrickSequencesList.get(j).zCoordinate2 == z4&&
+                            halfBrickSequencesList.get(j).helix2 == h3) {
+                        index = j;
+
+                        finalData.get(i).Domain3 = halfBrickSequencesList.get(index).domain1;
+                        finalData.get(i).Domain4 = halfBrickSequencesList.get(index).domain2;
+                        finalData.get(i).strandNumber = halfBrickSequencesList.get(index).strandNumber;
+                        finalData.get(i).plateNumber = halfBrickSequencesList.get(index).plateNumber;
+                        finalData.get(i).position = halfBrickSequencesList.get(index).position;
+
+                        //System.out.println("halfbrick data added for domains 3 and 4 "+h3+" "+z3+" "+h4+" "+z4+" "+
+                        //        finalData.get(i).Domain3+" "+finalData.get(i).Domain4);
+                    }
+                }
+                if(index==-1) {
+                    System.out.println("############ not found for " + -1 + " " + -1 + " " + -1 + " " + -1 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + "?" + index);
+                    finalData.get(i).isMapped = false;
+                }
+                else {
+                    //System.out.println("*************found for "+-1+" "+-1+" "+-1+" "+-1+" "+h3+" "+z3+" "+h4+" "+z4+"?"+index);
+                }
+            }
+            //identifying half bricks having domains 1 and 2
+            else if(finalData.get(i).x3==-1){
+                h1 = finalData.get(i).helix1;
+                h2 = h1;
+                z1 = finalData.get(i).z1;
+                z2 = finalData.get(i).z2;
+
+                for(int j = 0; j<halfBrickSequencesList.size(); j++){
+                    if (halfBrickSequencesList.get(j).helix2 == h1&&
+                            halfBrickSequencesList.get(j).zCoordinate1 == z2&&
+                            halfBrickSequencesList.get(j).zCoordinate2 == z1&&
+                            halfBrickSequencesList.get(j).helix1 == h2) {
+                        index = j;
+                        String d1 = new StringBuilder(halfBrickSequencesList.get(index).domain2).reverse().toString();
+                        String d2 = new StringBuilder(halfBrickSequencesList.get(index).domain1).reverse().toString();
+                        finalData.get(i).Domain1 = d1;
+                        finalData.get(i).Domain2 = d2;
+                        finalData.get(i).strandNumber = halfBrickSequencesList.get(index).strandNumber;
+                        finalData.get(i).plateNumber = halfBrickSequencesList.get(index).plateNumber;
+                        finalData.get(i).position = halfBrickSequencesList.get(index).position;
+
+                        //System.out.println("halfbrick data added for doimans 1 and 2 "+h1+" "+z1+" "+h2+" "+z2+" "+
+                        //        finalData.get(i).Domain1+" "+finalData.get(i).Domain2);
+                    }
+                }
+                if(index==-1) {
+                    System.out.println("############ not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + -1 + " " + -1 + " " + -1 + " " + -1 + "?" + index);
+                    finalData.get(i).isMapped = false;
+                }
+                else{
+                    //System.out.println("*************found for "+h1+" "+z1+" "+h2+" "+z2+" "+-1+" "+-1+" "+-1+" "+-1+"?"+index);
+                }
+            }
+            //identifying full bricks
+            else if((finalData.get(i).x2!=-1)&&(finalData.get(i).x3!=-1)){
+                h1 = finalData.get(i).helix1;
+                h2 = h1;
+                h3 = finalData.get(i).helix3;
+                h4 = h3;
+                z1 = finalData.get(i).z1;
+                z2 = z1 - 1;
+                z4 = finalData.get(i).z4;
+                z3 = z4 - 1;
+                domain1Replacement = finalData.get(i).isDomain1Replaced ;
+                domain2Replacement = finalData.get(i).isDomain2Replaced ;
+                domain3Replacement = finalData.get(i).isDomain3Replaced ;
+                domain4Replacement = finalData.get(i).isDomain4Replaced ;
+
+                for(int j = 0; j<fullBrickSequencesList.size(); j++){
+                    if (fullBrickSequencesList.get(j).helix1 == h1 &&
+                            fullBrickSequencesList.get(j).zCoordinate1 == z1 &&
+                            fullBrickSequencesList.get(j).zCoordinate2 == z2 &&
+                            fullBrickSequencesList.get(j).helix3 == h3 &&
+                            fullBrickSequencesList.get(j).helix2 == h2 &&
+                            fullBrickSequencesList.get(j).helix4 == h4 &&
+                            fullBrickSequencesList.get(j).zCoordinate3 == z3 &&
+                            fullBrickSequencesList.get(j).zCoordinate4 == z4 &&
+                            domain1Replacement == fullBrickSequencesList.get(j).isDomain1Replaced &&
+                            domain2Replacement == fullBrickSequencesList.get(j).isDomain2Replaced &&
+                            domain3Replacement == fullBrickSequencesList.get(j).isDomain3Replaced &&
+                            domain4Replacement == fullBrickSequencesList.get(j).isDomain4Replaced ) {
+                        index = j;
+                    }
+                }
+                if(index!=-1){
+                    finalData.get(i).Domain1 = fullBrickSequencesList.get(index).domain1;
+                    finalData.get(i).Domain2 = fullBrickSequencesList.get(index).domain2;
+                    finalData.get(i).Domain3 = fullBrickSequencesList.get(index).domain3;
+                    finalData.get(i).Domain4 = fullBrickSequencesList.get(index).domain4;
+                    finalData.get(i).strandNumber = fullBrickSequencesList.get(index).strandNumber;
+                    finalData.get(i).plateNumber = fullBrickSequencesList.get(index).plateNumber;
+                    finalData.get(i).position = fullBrickSequencesList.get(index).position;
+
+                    /*System.out.println("fullbrick data added "+h1+" "+z1+" "+h2+" "+z2+" "+h3+" "+z3+" "+h4+" "+z4+" "+
+                            finalData.get(i).Domain1+" "+finalData.get(i).Domain2
+                            +" "+
+                            finalData.get(i).Domain3+" "+finalData.get(i).Domain4);*/
+                }
+                if(index==-1) {
+                    System.out.println("############ not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + "?" + index);
+                    finalData.get(i).isMapped = false;
+                }
+                else {
+                    // System.out.println("*************found for "+h1+" "+z1+" "+h2+" "+z2+" "+h3+" "+z3+" "+h4+" "+z4+"?"+index);
+                }
+            }
+        }
+    }
+
+    //STEP 14: If set boundary bricks option is enabled, combine bricks to form 48-nt boundary bricks
+    // and re-map the coordinates to DNA sequence fetched from the imported file
+    public void attachBoundaryBricks(){
+        int x, y, z1, z2, z3, z4, z5, z6, h1, h2, h3, h4, h5, h6;
+        int fullBrickIndex;
+        int domains;
+        String d1,d2;
+        finalBoundaryData = finalData;
+
+        for(int i = 0; i < finalBoundaryData.size() ; i++){
+            if(finalBoundaryData.get(i).isMapped == true &&
+                    (finalBoundaryData.get(i).isLeftmostHalfBrick ||
+                            finalBoundaryData.get(i).isBottommostHalfBrick ||
+                            finalBoundaryData.get(i).isTopmostHalfBrick ||
+                            finalBoundaryData.get(i).isRightmostHalfBrick)) {
+                if (finalBoundaryData.get(i).x3 == -1) {
+                    x = finalBoundaryData.get(i).x2;
+                    y = finalBoundaryData.get(i).y2;
+                    z6 = finalBoundaryData.get(i).z1;
+                    z5 = z6 - 1;
+                    d1 = new String(finalBoundaryData.get(i).Domain1);
+                    d2 = new String(finalBoundaryData.get(i).Domain2);
+                    h5 = finalBoundaryData.get(i).helix1;
+                    h6 = h5;
+                    domains = 12;
+                } else {
+                    x = finalBoundaryData.get(i).x3;
+                    y = finalBoundaryData.get(i).y3;
+                    z5 = finalBoundaryData.get(i).y3;
+                    z6 = z5 + 1;
+                    d1 = new String(finalBoundaryData.get(i).Domain3);
+                    d2 = new String(finalBoundaryData.get(i).Domain4);
+                    h5 = finalBoundaryData.get(i).helix3;
+                    h6 = h5;
+                    domains = 34;
+
+                }
+
+                if (MainFrame.isMinXBoundaryPlaneEnabled &&
+                        finalBoundaryData.get(i).isLeftmostHalfBrick &&
+                        z5 > 1 &&
+                        z5 != MainFrame.depth){//half bricks missing in Yonggang Ke's file
+
+                    fullBrickIndex = newIndex[x][y][z5 - 2];
+                    if (fullBrickIndex != -1) {
+                        h1 = finalBoundaryData.get(fullBrickIndex).helix1;
+                        h2 = h1;
+                        h3 = finalBoundaryData.get(fullBrickIndex).helix3;
+                        h4 = h3;
+                        z1 = finalBoundaryData.get(fullBrickIndex).z1;
+                        z2 = z1 - 1;
+                        z3 = finalBoundaryData.get(fullBrickIndex).z3;
+                        z4 = z3 + 1;
+
+                        int index = -1;
+
+                        for (int j = 0; j < boundaryBrickSequencesList.size(); j++) {
+                            if (boundaryBrickSequencesList.get(j).helix1 == h1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate1 == z1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate2 == z2 &&
+                                    boundaryBrickSequencesList.get(j).helix3 == h3 &&
+                                    boundaryBrickSequencesList.get(j).helix2 == h2 &&
+                                    boundaryBrickSequencesList.get(j).helix4 == h4 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate3 == z3 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate4 == z4 &&
+                                    boundaryBrickSequencesList.get(j).helix5 == h5 &&
+                                    boundaryBrickSequencesList.get(j).helix6 == h6 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate5 == z5 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate6 == z6) {
+                                index = j;
+                            }
+                        }
+                        if (index != -1) {
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z5, boundaryBrickSequencesList.get(index).domain5, boundaryBrickSequencesList.get(index).domain6, h5, h6, domains);
+                            finalBoundaryData.get(fullBrickIndex).strandNumber = boundaryBrickSequencesList.get(index).strandNumber;
+                            finalBoundaryData.get(fullBrickIndex).plateNumber = boundaryBrickSequencesList.get(index).plateNumber;
+                            finalBoundaryData.get(fullBrickIndex).position = boundaryBrickSequencesList.get(index).position;
+                            finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                            finalBoundaryData.get(i).isMapped = false;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = true;
+
+                            //System.out.println("Boundary brick data added " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                            //        +h5 + " " + z5 + " " + h6 + " " + z6 + " ");
+                        }
+                        else if (index == -1) {
+                            System.out.println("############ Boundary brick not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                                    +h5 + " " + z5 + " " + h6 + " " + z6 + "?" + domains);
+                            finalBoundaryData.get(i).isMapped = true;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = false;
+                        }
+                        finalBoundaryData.get(i).isLeftmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for min x at" + x + " " + y + " " + z5);
+                    }
+                }
+                if (MainFrame.isMaxXBoundaryPlaneEnabled &&
+                        finalBoundaryData.get(i).isRightmostHalfBrick &&
+                        z5 > 1 &&
+                        //half bricks missing in Yonggang Ke's file
+                        z5 != MainFrame.depth ) {
+                    fullBrickIndex = newIndex[x][y][z5 - 2];
+                    if (fullBrickIndex != -1) {
+                        h1 = finalBoundaryData.get(fullBrickIndex).helix1;
+                        h2 = h1;
+                        h3 = finalBoundaryData.get(fullBrickIndex).helix3;
+                        h4 = h3;
+                        z1 = finalBoundaryData.get(fullBrickIndex).z1;
+                        z2 = z1 - 1;
+                        z3 = finalBoundaryData.get(fullBrickIndex).z3;
+                        z4 = z3 + 1;
+
+                        int index = -1;
+
+                        for (int j = 0; j < boundaryBrickSequencesList.size(); j++) {
+                            if (boundaryBrickSequencesList.get(j).helix1 == h1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate1 == z1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate2 == z2 &&
+                                    boundaryBrickSequencesList.get(j).helix3 == h3 &&
+                                    boundaryBrickSequencesList.get(j).helix2 == h2 &&
+                                    boundaryBrickSequencesList.get(j).helix4 == h4 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate3 == z3 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate4 == z4 &&
+                                    boundaryBrickSequencesList.get(j).helix5 == h5 &&
+                                    boundaryBrickSequencesList.get(j).helix6 == h6 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate5 == z5 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate6 == z6) {
+                                index = j;
+                            }
+                        }
+                        if (index != -1) {
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z5, boundaryBrickSequencesList.get(index).domain5, boundaryBrickSequencesList.get(index).domain6, h5, h6, domains);
+                            finalBoundaryData.get(fullBrickIndex).strandNumber = boundaryBrickSequencesList.get(index).strandNumber;
+                            finalBoundaryData.get(fullBrickIndex).plateNumber = boundaryBrickSequencesList.get(index).plateNumber;
+                            finalBoundaryData.get(fullBrickIndex).position = boundaryBrickSequencesList.get(index).position;
+                            finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                            finalBoundaryData.get(i).isMapped = false;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = true;
+
+                            //System.out.println("Boundary brick data added " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                            //        +h5 + " " + z5 + " " + h6 + " " + z6 + " ");
+                        }
+                        else if (index == -1) {
+                            System.out.println("############ Boundary brick not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                                    +h5 + " " + z5 + " " + h6 + " " + z6 + "?" +domains);
+                            finalBoundaryData.get(i).isMapped = true;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = false;
+                        }
+                        finalBoundaryData.get(i).isRightmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for max x at" + x + " " + y + " " + z2);
+                    }
+                }
+                if (MainFrame.isMinYBoundaryPlaneEnabled && finalBoundaryData.get(i).isTopmostHalfBrick &&
+                        z5 > 1 &&
+                        //half bricks missing in Yonggang Ke's file
+                        z5 != MainFrame.depth ) {
+
+                    fullBrickIndex = newIndex[x][y][z5 - 2];
+                    if (fullBrickIndex != -1) {
+                        h1 = finalBoundaryData.get(fullBrickIndex).helix1;
+                        h2 = h1;
+                        h3 = finalBoundaryData.get(fullBrickIndex).helix3;
+                        h4 = h3;
+                        z1 = finalBoundaryData.get(fullBrickIndex).z1;
+                        z2 = z1 - 1;
+                        z3 = finalBoundaryData.get(fullBrickIndex).z3;
+                        z4 = z3 + 1;
+
+                        int index = -1;
+
+                        for (int j = 0; j < boundaryBrickSequencesList.size(); j++) {
+                            if (boundaryBrickSequencesList.get(j).helix1 == h1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate1 == z1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate2 == z2 &&
+                                    boundaryBrickSequencesList.get(j).helix3 == h3 &&
+                                    boundaryBrickSequencesList.get(j).helix2 == h2 &&
+                                    boundaryBrickSequencesList.get(j).helix4 == h4 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate3 == z3 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate4 == z4 &&
+                                    boundaryBrickSequencesList.get(j).helix5 == h5 &&
+                                    boundaryBrickSequencesList.get(j).helix6 == h6 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate5 == z5 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate6 == z6) {
+                                index = j;
+                            }
+                        }
+                        if (index != -1) {
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z5, boundaryBrickSequencesList.get(index).domain5, boundaryBrickSequencesList.get(index).domain6, h5, h6, domains);
+                            finalBoundaryData.get(fullBrickIndex).strandNumber = boundaryBrickSequencesList.get(index).strandNumber;
+                            finalBoundaryData.get(fullBrickIndex).plateNumber = boundaryBrickSequencesList.get(index).plateNumber;
+                            finalBoundaryData.get(fullBrickIndex).position = boundaryBrickSequencesList.get(index).position;
+                            finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                            finalBoundaryData.get(i).isMapped = false;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = true;
+
+                            //System.out.println("Boundary brick data added " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                            //        +h5 + " " + z5 + " " + h6 + " " + z6 + " ");
+                        }
+                        else if (index == -1) {
+                            System.out.println("############ Boundary brick not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                                    +h5 + " " + z5 + " " + h6 + " " + z6 + "?" +domains);
+                            finalBoundaryData.get(i).isMapped = true;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = false;
+                        }
+
+                        finalBoundaryData.get(i).isTopmostHalfBrick = false;
+                        //System.out.println("BoundaryBrick for min y at" + x + " " + y + " " + z2);
+                    }
+                }
+                if (MainFrame.isMaxYBoundaryPlaneEnabled && finalBoundaryData.get(i).isBottommostHalfBrick &&
+                        z5 > 1 &&
+                        //half bricks missing in Yonggang Ke's file
+                        z5 != MainFrame.depth ) {
+
+                    fullBrickIndex = newIndex[x][y][z5 - 2];
+                    if (fullBrickIndex != -1) {
+                        h1 = finalBoundaryData.get(fullBrickIndex).helix1;
+                        h2 = h1;
+                        h3 = finalBoundaryData.get(fullBrickIndex).helix3;
+                        h4 = h3;
+                        z1 = finalBoundaryData.get(fullBrickIndex).z1;
+                        z2 = z1 - 1;
+                        z3 = finalBoundaryData.get(fullBrickIndex).z3;
+                        z4 = z3 + 1;
+
+                        int index = -1;
+
+                        for (int j = 0; j < boundaryBrickSequencesList.size(); j++) {
+                            if (boundaryBrickSequencesList.get(j).helix1 == h1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate1 == z1 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate2 == z2 &&
+                                    boundaryBrickSequencesList.get(j).helix3 == h3 &&
+                                    boundaryBrickSequencesList.get(j).helix2 == h2 &&
+                                    boundaryBrickSequencesList.get(j).helix4 == h4 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate3 == z3 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate4 == z4 &&
+                                    boundaryBrickSequencesList.get(j).helix5 == h5 &&
+                                    boundaryBrickSequencesList.get(j).helix6 == h6 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate5 == z5 &&
+                                    boundaryBrickSequencesList.get(j).zCoordinate6 == z6) {
+                                index = j;
+                            }
+                        }
+                        if (index != -1) {
+                            finalBoundaryData.get(fullBrickIndex).addDomains(x, y, z5, boundaryBrickSequencesList.get(index).domain5, boundaryBrickSequencesList.get(index).domain6, h5, h6, domains);
+                            finalBoundaryData.get(fullBrickIndex).strandNumber = boundaryBrickSequencesList.get(index).strandNumber;
+                            finalBoundaryData.get(fullBrickIndex).plateNumber = boundaryBrickSequencesList.get(index).plateNumber;
+                            finalBoundaryData.get(fullBrickIndex).position = boundaryBrickSequencesList.get(index).position;
+                            finalBoundaryData.get(fullBrickIndex).isBoundary = true;
+                            finalBoundaryData.get(i).isMapped = false;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = true;
+
+                            //System.out.println("Boundary brick data added " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                            //        +h5 + " " + z5 + " " + h6 + " " + z6 + " ");
+                        }
+                        else if (index == -1) {
+                            System.out.println("############ Boundary brick not found for " + h1 + " " + z1 + " " + h2 + " " + z2 + " " + h3 + " " + z3 + " " + h4 + " " + z4 + " " +
+                                    +h5 + " " + z5 + " " + h6 + " " + z6 + "?" + domains);
+                            finalBoundaryData.get(i).isMapped = true;
+                            finalBoundaryData.get(i).isRemovedAsBoundary = false;
+                        }
+
+                        finalBoundaryData.get(i).isBottommostHalfBrick = false;
+                        System.out.println("BoundaryBrick for max y at" + x + " " + y + " " + z2);
+                    }
+                }
+            }
+        }
+
+
+        int s = finalBoundaryData.size();
+        for(int i=0;i<s;i++){
+            if(finalBoundaryData.get(i).isRemovedAsBoundary == true){
+                finalBoundaryData.remove(i);
+                s--;
+            }
+        }
+
     }
 
 }

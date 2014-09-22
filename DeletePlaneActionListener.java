@@ -12,63 +12,45 @@ public class DeletePlaneActionListener implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         System.out.println("Delete plane has been called");
-        MainFrame.deleteRowRadioButton.setEnabled(false);
-        MainFrame.deletePlaneRadioButton.setEnabled(false);
-
         final JFrame deletePlaneFrame = new JFrame("Delete Canvas plane");
-        ImageIcon img = new ImageIcon("images/logod.png");
+        deletePlaneFrame.setBackground(Color.DARK_GRAY);
+        ImageIcon img = new ImageIcon("icons/software_logo.png");
         Image imag=img.getImage();
         deletePlaneFrame.setIconImage(imag);
         deletePlaneFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
-        GridBagConstraints dimensionFrameGridBagConstraints = new GridBagConstraints();
-        dimensionFrameGridBagConstraints.insets = new Insets(5, 5, 5, 5);
+        mainPanel.setBackground(Color.DARK_GRAY);
 
-        JLabel selectedPlaneLabel = new JLabel("Select Canvas Plane: ");
-        String[] planeOptions = {"Select Canvas plane","X Plane","Y Plane","Z Plane"};
+        JLabel selectedPlaneLabel = new JLabel("<html><style>h4{color:white;}</style><h4> Select Canvas Plane:  </h4></html>");
+        String[] planeOptions = {"Select","X Plane","Y Plane","Z Plane"};
 
         final JComboBox planeListComboBox = new JComboBox(planeOptions);
         planeListComboBox.setSelectedIndex(0);
 
-        JLabel selectedPlaneNumberLabel = new JLabel("Enter plane Co-ordinate");
+        JLabel selectedPlaneNumberLabel = new JLabel("<html><style>h4{color:white;}</style><h4>Enter plane Co-ordinate</h4></html>");
         final JTextField selectedPlaneNumberTextField= new JTextField(2);
 
         JButton okButton = new JButton("OK");
         JButton cancelButton = new JButton("Cancel");
 
-        selectedPlaneLabel.setToolTipText("Enter the canvas plane (X/Y/Z)");
-        selectedPlaneNumberLabel.setToolTipText("Enter the plane co-ordinate you want to delete");
+        selectedPlaneLabel.setToolTipText("<html><style>h4{color:white;}</style><h4>Enter the canvas plane (X/Y/Z)</h4></html>");
+        selectedPlaneNumberLabel.setToolTipText("<html><style>h4{color:white;}</style><h4>Enter the plane co-ordinate you want to delete</h4></html>");
 
-        dimensionFrameGridBagConstraints.gridx = 0;
-        dimensionFrameGridBagConstraints.gridy = 0;
-        mainPanel.add(selectedPlaneLabel, dimensionFrameGridBagConstraints);
-
-        dimensionFrameGridBagConstraints.gridx = 1;
-        dimensionFrameGridBagConstraints.gridy = 0;
-        mainPanel.add(planeListComboBox, dimensionFrameGridBagConstraints);
-
-        dimensionFrameGridBagConstraints.gridx = 0;
-        dimensionFrameGridBagConstraints.gridy = 1;
-        mainPanel.add(selectedPlaneNumberLabel, dimensionFrameGridBagConstraints);
-
-        dimensionFrameGridBagConstraints.gridx = 1;
-        dimensionFrameGridBagConstraints.gridy = 1;
-        mainPanel.add(selectedPlaneNumberTextField, dimensionFrameGridBagConstraints);
-
-        dimensionFrameGridBagConstraints.gridx = 0;
-        dimensionFrameGridBagConstraints.gridy = 2;
-        mainPanel.add(cancelButton, dimensionFrameGridBagConstraints);
-
-        dimensionFrameGridBagConstraints.gridx = 1;
-        dimensionFrameGridBagConstraints.gridy = 2;
-        mainPanel.add(okButton, dimensionFrameGridBagConstraints);
+        mainPanel.add(selectedPlaneLabel);
+        mainPanel.add(Box.createHorizontalStrut(10));
+        mainPanel.add(planeListComboBox);
+        mainPanel.add(Box.createHorizontalStrut(20));
+        mainPanel.add(selectedPlaneNumberLabel);
+        mainPanel.add(Box.createHorizontalStrut(10));
+        mainPanel.add(selectedPlaneNumberTextField);
+        mainPanel.add(Box.createHorizontalStrut(20));
+        mainPanel.add(okButton);
 
         deletePlaneFrame.add(mainPanel, BorderLayout.CENTER);
         deletePlaneFrame.pack();
         deletePlaneFrame.setVisible(true);
-        deletePlaneFrame.setLocation(500, 300);
+        deletePlaneFrame.setLocation(MainFrame.screenWidth / 3, MainFrame.screenHeight / 4);
 
         okButton.addActionListener(new ActionListener() {
             @Override
@@ -81,19 +63,10 @@ public class DeletePlaneActionListener implements ActionListener {
 
             }
         });
-        cancelButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                deletePlaneFrame.dispose();
-                MainFrame.deleteRowRadioButton.setEnabled(true);
-            }
-        });
         deletePlaneFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         deletePlaneFrame.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-                MainFrame.deleteRowRadioButton.setEnabled(true);
-                MainFrame.deletePlaneRadioButton.setEnabled(true);
             }
         });
     }

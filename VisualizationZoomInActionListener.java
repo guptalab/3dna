@@ -15,7 +15,7 @@ public class VisualizationZoomInActionListener implements ActionListener {
         float step=0.25f;
 
         if(MainFrame.isImported){
-            ImportActionListener.canvasy=ImportActionListener.canvasy+step;
+            ImportActionListener.canvasy=ImportActionListener.canvasy+VisualizeActionListener.visualizeCanvasStep;
             ViewingPlatform vp = ImportActionListener.simpleU.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
 
             TransformGroup View_TransformGroup = vp.getMultiTransformGroup().getTransformGroup(0); // get the TransformGroup associated
@@ -28,7 +28,7 @@ public class VisualizationZoomInActionListener implements ActionListener {
             View_TransformGroup.setTransform(View_Transform3D);  // assign Transform3D to ViewPlatform
         }
         else{
-            VisualizeActionListener.canvasZ=VisualizeActionListener.canvasZ-step;
+            VisualizeActionListener.canvasZ=VisualizeActionListener.canvasZ-VisualizeActionListener.visualizeCanvasStep;
             ViewingPlatform vp = VisualizeActionListener.visualizationSimpleUniverse.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
 
             TransformGroup View_TransformGroup = vp.getMultiTransformGroup().getTransformGroup(0); // get the TransformGroup associated
