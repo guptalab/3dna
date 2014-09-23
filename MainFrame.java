@@ -6,9 +6,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.net.URISyntaxException;
+import javax.media.j3d.Appearance;
+import javax.media.j3d.ColoringAttributes;
+import javax.media.j3d.TransparencyAttributes;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.vecmath.Color3f;
 
 @SuppressWarnings("serial")
 // This is the main class of the software that invokes the main GUI.
@@ -186,9 +190,10 @@ public class MainFrame extends JFrame{
         JLabel enableProtector = new JLabel("<html><style>h4{color:white;}</style><h4> Enable protector bricks in: </h4></html>");
         enableProtector.setBackground(Color.DARK_GRAY);
 
-        final JCheckBox zMinPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Min-Z Plane</h4></html>");
+        zMinPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Min-Z Plane</h4></html>");
         zMinPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
-        final JCheckBox zMaxPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Max-Z Plane</h4></html>");
+
+        zMaxPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Max-Z Plane</h4></html>");
         zMaxPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
 
         xMinPlaneBoundaryCheckbox.addActionListener(new ActionListener() {
@@ -228,24 +233,10 @@ public class MainFrame extends JFrame{
                     isMaxYBoundaryPlaneEnabled = false;
             }
         });
-        zMaxPlaneProtectorCheckbox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (zMaxPlaneProtectorCheckbox.isSelected() == true)
-                    isMaxZProtectorPlaneEnabled = true;
-                else
-                    isMaxZProtectorPlaneEnabled = false;
-            }
-        });
-        zMinPlaneProtectorCheckbox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (zMinPlaneProtectorCheckbox.isSelected() == true)
-                    isMinZProtectorPlaneEnabled = true;
-                else
-                    isMinZProtectorPlaneEnabled = false;
-            }
-        });
+
+        zMaxPlaneProtectorCheckbox.addActionListener(new ZMaxPlaneProtectorActionListener());
+        zMinPlaneProtectorCheckbox.addActionListener(new ZMinPlaneProtectorActionListener());
+
         rightJToolBar.add(multipleDeletionLabel);
         rightJToolBar.add(deletePlaneButton);
         rightJToolBar.add(deleteRowColoumnButton);
@@ -709,4 +700,7 @@ public class MainFrame extends JFrame{
     public static boolean isMinYBoundaryPlaneEnabled = false;
     public static boolean isMaxXBoundaryPlaneEnabled = false;
     public static boolean isMaxYBoundaryPlaneEnabled = false;
+    public static Appearance protectorCubeAppearance;
+    public static JCheckBox zMinPlaneProtectorCheckbox;
+    public static JCheckBox zMaxPlaneProtectorCheckbox;
 }

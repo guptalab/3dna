@@ -1,3 +1,8 @@
+/** Author: Shikhar K Gupta, Foram Joshi
+ * Project: 3DNA
+ * Mentor: Prof. Manish K Gupta
+ */
+
 import com.sun.j3d.utils.geometry.ColorCube;
 
 import javax.media.j3d.BranchGroup;

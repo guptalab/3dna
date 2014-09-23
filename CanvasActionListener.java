@@ -31,11 +31,12 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
     public static float canvasy;
     public static float canvasz;
     public static boolean isDimensionEntered=false;
-
     public static ArrayList<DNAColorCubeArray> colorCubeArrayList;
+    public static ArrayList<DNAProtectorCubeArray> protectorCubeArrayList;
+
     @Override
     public void actionPerformed(ActionEvent arg0) {
-// TODO Auto-generated method stub
+    // TODO Auto-generated method stub
         if (!MainFrame.isProjectCreated) {
             Toolkit toolkit=Toolkit.getDefaultToolkit();
             int screenWidth = toolkit.getScreenSize().width;
@@ -93,8 +94,6 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         else{
             enterDimensions();
         }
-
-
     }
 
     public void enterDimensions(){
@@ -164,44 +163,36 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
     }
     public void createCanvas(){
         MainFrame.TrueEnableContent();
-// Canvas3D is where all the action will be taking place, don't worry, after adding it
-// to your layout, you don't have to touch it.
+    // Canvas3D is where all the action will be taking place, don't worry, after adding it
+    // to your layout, you don't have to touch it.
         Canvas3D canvas = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
-// add Canvas3D
+    // add Canvas3D
         MainFrame.vPanel.setTopComponent(canvas);
         simpleU = new SimpleUniverse(canvas); // setup the SimpleUniverse, attach the Canvas3D
-//This is very important, the SceneGraph (where all the action takes place) is created
-//by calling a function which here is called 'createSceneGraph'.
-//The function is not necessary, you can put all your code here, but it is a
-//standard in Java3D to create your SceneGraph contents in the function 'createSceneGraph'
+        //This is very important, the SceneGraph (where all the action takes place) is created
+        //by calling a function which here is called 'createSceneGraph'.
+        //The function is not necessary, you can put all your code here, but it is a
+        //standard in Java3D to create your SceneGraph contents in the function 'createSceneGraph'
         scene = createSceneGraph();
-//set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
+        //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
         canvasx = 0.0f;
         canvasy = 0.0f;
         canvasz = 2.0f;
         ViewingPlatform viewingPlatform = CanvasActionListener.simpleU.getViewingPlatform(); // get the ViewingPlatform of the SimpleUniverse
-/*//adding Dark Slate Gray as Simple Universe Color
-BranchGroup backgroundBranchGroup = new BranchGroup();
-Background background = new Background(new Color3f(1f,1f,1f));
-BoundingSphere sphere = new BoundingSphere(new Point3d(0,0,0), 100000);
-background.setApplicationBounds(sphere);
-backgroundBranchGroup.addChild(background);
-viewingPlatform.addChild(backgroundBranchGroup);*/
         TransformGroup View_TransformGroup = viewingPlatform.getMultiTransformGroup().getTransformGroup(0); // get the TransformGroup associated
         Transform3D View_Transform3D = new Transform3D(); // create a Transform3D for the ViewingPlatform
         View_TransformGroup.getTransform(View_Transform3D); // get the current 3d from the ViewingPlatform
         View_Transform3D.setTranslation(new Vector3f(canvasx, canvasy, canvasz)); // set 3d to x=0, y=0, z=2
         View_TransformGroup.setTransform(View_Transform3D); // assign Transform3D to ViewPlatform
-// this will optimize your SceneGraph, not necessary, but it will allow your program to run faster.
-//scene.compile();
+
         simpleU.addBranchGraph(scene); //add your SceneGraph to the SimpleUniverse
-//We now add a pick canvas so that we can get
+        //We now add a pick canvas so that we can get
         pickCanvas = new PickCanvas(canvas, scene);
         pickCanvas.setMode(PickCanvas.GEOMETRY);
-        canvas.addMouseListener(this);
+            canvas.addMouseListener(this);
     }
     public static BranchGroup createSceneGraph() {
-// This BranchGroup is the root of the SceneGraph,
+        // This BranchGroup is the root of the SceneGraph,
         objRoot = new BranchGroup();
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_READ);
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_WRITE);
@@ -209,10 +200,10 @@ viewingPlatform.addChild(backgroundBranchGroup);*/
         objRoot.setCapability(BranchGroup.ALLOW_CHILDREN_EXTEND);
         objRoot.setCapability(BranchGroup.ALLOW_DETACH);
         objRoot.setCapability(Node.ENABLE_PICK_REPORTING);
-        getNewBox();//creates a plane of cubes, planes can be combined to form the full fledged canvas.
+        createMolecularCanvas();
         return objRoot;
     }
-    public static void getNewBox(){
+    public static void createMolecularCanvas(){
         masterTrans=new TransformGroup();
         masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
         masterTrans.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
@@ -227,7 +218,7 @@ viewingPlatform.addChild(backgroundBranchGroup);*/
                         MainFrame.deletedCoordinates[i][j][k]=false;
         }
         float positionOffset=0.105f;
-//initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
+        //initialize the DNAColorCubeArray to store all the DNAColorCube(s) that will be formed in that process
         colorCubeArrayList = new ArrayList<DNAColorCubeArray>();
         for(int i=0;i<MainFrame.width;i++){
             for(int j=0;j<MainFrame.height;j++){
@@ -250,12 +241,72 @@ viewingPlatform.addChild(backgroundBranchGroup);*/
                     tg.addChild(c1);
                     tg.setTransform(transform);
                     masterTrans.addChild(tg);
-// add the DNAColorCube to the DNAColorCubeArray so that it can be accessed later
+                    // add the DNAColorCube to the DNAColorCubeArray so that it can be accessed later
                     colorCubeArrayList.add(new DNAColorCubeArray(c1,i, j - MainFrame.height + 1, k - MainFrame.depth + 1));
                 }
             }
         }
-//Adding molecular scale and axis to the master TransformGroup
+
+        //Adding transparent protector bricks plane to the molecular canvas
+        //Adding Protector Cube Plane at Z Maximum
+        //Defining Appearance(Transparency Attributes) for the DNAProtectorBricks
+
+        Appearance ap = new Appearance();
+        TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,1f);
+        ap.setTransparencyAttributes( transparencyAttributes );
+
+        protectorCubeArrayList = new ArrayList<DNAProtectorCubeArray>();
+        for(int i=0;i<MainFrame.width;i++){
+            for(int j=0;j<MainFrame.height;j++){
+                DNAProtectorCube c1 = new DNAProtectorCube(0.05f);
+                c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+                c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
+                c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
+                c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+                c1.setCapability(Node.ENABLE_PICK_REPORTING);
+                c1.setAppearance(ap);
+                tg = new TransformGroup();
+                tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
+                tg.setCapability(Node.ALLOW_PICKABLE_READ);
+                tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+                tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+                transform = new Transform3D();
+                Vector3f vector = new Vector3f(i*positionOffset,j*positionOffset,-1f*positionOffset);
+                transform.setTranslation(vector);
+                tg.addChild(c1);
+                tg.setTransform(transform);
+                masterTrans.addChild(tg);
+                // add the DNAColorCube to the DNAColorCubeArray so that it can be accessed later
+                protectorCubeArrayList.add(new DNAProtectorCubeArray(c1,i, j - MainFrame.height + 1, 0));
+            }
+        }
+        //Adding Protector Cube Plane at Z Minimum
+        for(int i=0;i<MainFrame.width;i++){
+            for(int j=0;j<MainFrame.height;j++){
+                DNAProtectorCube c1 = new DNAProtectorCube(0.05f);
+                c1.setCapability(Shape3D.ALLOW_APPEARANCE_WRITE);
+                c1.setCapability(Shape3D.ALLOW_APPEARANCE_OVERRIDE_WRITE);
+                c1.setCapability(Shape3D.ALLOW_GEOMETRY_WRITE);
+                c1.setCapability(GeometryArray.ALLOW_COLOR_WRITE);
+                c1.setCapability(Node.ENABLE_PICK_REPORTING);
+                c1.setAppearance(ap);
+                tg = new TransformGroup();
+                tg.setCapability(Node.ALLOW_PICKABLE_WRITE);
+                tg.setCapability(Node.ALLOW_PICKABLE_READ);
+                tg.setCapability(TransformGroup.ALLOW_TRANSFORM_WRITE);
+                tg.setCapability(TransformGroup.ALLOW_TRANSFORM_READ);
+                transform = new Transform3D();
+                Vector3f vector = new Vector3f(i*positionOffset,j*positionOffset,MainFrame.depth*positionOffset);
+                transform.setTranslation(vector);
+                tg.addChild(c1);
+                tg.setTransform(transform);
+                masterTrans.addChild(tg);
+                // add the DNAColorCube to the DNAColorCubeArray so that it can be accessed later
+                protectorCubeArrayList.add(new DNAProtectorCubeArray(c1,i, j - MainFrame.height + 1, -MainFrame.depth));
+            }
+        }
+
+        //Adding molecular scale and axis to the master TransformGroup
         LineArray xAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray yAxisLineArray = new LineArray(2, LineArray.COORDINATES);
         LineArray zAxisLineArray = new LineArray(2, LineArray.COORDINATES);
@@ -274,6 +325,7 @@ viewingPlatform.addChild(backgroundBranchGroup);*/
         rotateBehaviour.setSchedulingBounds(new BoundingSphere());
         masterTrans.addChild(rotateBehaviour);
     }
+
     public void destroy() { // this function will allow Java3D to clean up upon quiting
         simpleU.removeAllLocales();
     }

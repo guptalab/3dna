@@ -23,17 +23,6 @@ public class VisualizeActionListener implements ActionListener{
         // TODO Auto-generated method stub
         System.out.println("Visualization option has been selected");
 
-
-        JFrame frame = new JFrame("Stepping Progress");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        final JProgressBar aJProgressBar = new JProgressBar(JProgressBar.VERTICAL);
-        aJProgressBar.setStringPainted(true);
-        aJProgressBar.setIndeterminate(true);
-
-        frame.add(aJProgressBar, BorderLayout.NORTH);
-        frame.setSize(300, 200);
-        frame.setVisible(true);
-
         visualizeFrame = new JFrame("3DNA Visualization");
         visualizeFrame.setVisible(true);
         visualizeFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -605,4 +594,8 @@ public class VisualizeActionListener implements ActionListener{
     public static BoundingSphere bounds;
     public static Boolean isCompleted = false;
     public static float visualizeCanvasStep = 1.00f;
+    public static Thread progressBarThread;
+    public static Thread visualizeCanvasThread;
+    public static String progressBarThreadName = "Progress Bar Thread";
+    public static String visualizeCanvasThreadName = "Visualize Canvas Thread";
 }
