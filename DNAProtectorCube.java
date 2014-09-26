@@ -13,7 +13,7 @@ import javax.vecmath.Vector3f;
 import java.awt.*;
 
 
-public class DNAProtectorCube extends ColorCube{
+public class DNAProtectorCube extends DNAColorCube{
 
     public int xCord;
     public int yCord;

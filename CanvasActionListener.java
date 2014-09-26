@@ -168,6 +168,7 @@ public class CanvasActionListener extends MouseAdapter implements ActionListener
         Canvas3D canvas = new Canvas3D(SimpleUniverse.getPreferredConfiguration());
     // add Canvas3D
         MainFrame.vPanel.setTopComponent(canvas);
+        MainFrame.vPanel.setDividerLocation(0.8);
         simpleU = new SimpleUniverse(canvas); // setup the SimpleUniverse, attach the Canvas3D
         //This is very important, the SceneGraph (where all the action takes place) is created
         //by calling a function which here is called 'createSceneGraph'.

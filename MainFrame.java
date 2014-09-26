@@ -12,6 +12,10 @@ import javax.media.j3d.TransparencyAttributes;
 import javax.swing.*;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
 import javax.vecmath.Color3f;
 
 @SuppressWarnings("serial")
@@ -37,14 +41,35 @@ public class MainFrame extends JFrame{
         vPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT );
         hPanel.setRightComponent(vPanel);
         vPanel.setTopComponent(topRightJPanel);
-        vPanel.setBottomComponent(bottomRightJPanel );
+        vPanel.setBottomComponent(bottomRightJPanel);
+        vPanel.setDividerLocation(0.7);
         //add JMenuBar and JToolBar
         createAndShowGUI();
         ToolTipManager.sharedInstance().setLightWeightPopupEnabled(false);
     }
-    public void definePanels(){
+    public static void  printLog (String text, Color textColor){
+        style.addAttribute(StyleConstants.FontFamily, "Lucida Console");
+        style.addAttribute(StyleConstants.FontSize, new Integer(14));
+        StyleConstants.setForeground(style, textColor);
+        try { doc.insertString(doc.getLength(), ">>>" +text + "\n",style);
+            log.setCaretPosition(log.getDocument().getLength());}
+        catch (BadLocationException e){}
+    }
 
-        leftJToolBar = new JToolBar("Canvas Control", JToolBar.VERTICAL); //leftJToolBar supports all the buttons that are used to move around in the canvas
+    public void definePanels(){
+        bottomRightJPanel = new JPanel();
+        bottomRightJPanel.setLayout(new BorderLayout());
+        log = new JTextPane();
+        log.setEditable(false);
+        doc = log.getStyledDocument();
+        style = log.addStyle("3DNA Style", null);
+        log.setBackground(Color.DARK_GRAY);
+        logScrollPane = new JScrollPane(log);
+        logScrollPane.setBackground(Color.DARK_GRAY);
+        bottomRightJPanel.add(logScrollPane);
+
+        //leftJToolBar supports all the buttons that are used to move around in the canvas
+        leftJToolBar = new JToolBar("Canvas Control", JToolBar.VERTICAL);
         leftJToolBar.setBackground(Color.DARK_GRAY);
         this.add(leftJToolBar,BorderLayout.WEST);
         leftJToolBar.setVisible(false);
@@ -648,7 +673,10 @@ public class MainFrame extends JFrame{
     public static Toolkit toolkit=Toolkit.getDefaultToolkit();
     public static int screenWidth = toolkit.getScreenSize().width;
     public static int screenHeight = toolkit.getScreenSize().height;
-
+    public static JTextPane log;
+    public static StyledDocument doc;
+    public static Style style;
+    public static JScrollPane logScrollPane;
     public static File configFile;
     public static MainFrame mainFrame;
     public static JSplitPane vPanel;
