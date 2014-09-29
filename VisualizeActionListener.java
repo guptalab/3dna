@@ -73,6 +73,26 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
         JLabel domain1234SouthLabel = new JLabel("<html><style>h3{color:white;}</style><h3>Full Brick (South)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3></html>", domain1234SouthIcon, JLabel.HORIZONTAL);
         JLabel domain1234EastLabel = new JLabel("<html><style>h3{color:white;}</style><h3>Full Brick (East)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</h3></html>", domain1234EastIcon, JLabel.HORIZONTAL);
 
+        removeFocusButton = new JButton("<html><style>h4{color:white;}</style><h4> Remove Focus </h4></html>");
+        removeFocusButton.setBackground(Color.DARK_GRAY);
+        removeFocusButton.setEnabled(false);
+        removeFocusButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                VisualizeActionListener.printMessage("RemoveFocus Button has been activated");
+                removeFocusButton.setEnabled(false);
+                int i=0;
+                while (masterTrans.getAllChildren().hasMoreElements()) {
+                    if(masterTrans.getChild(i).getClass().getName().equals("javax.media.j3d.BranchGroup")){
+                        masterTrans.removeChild(i);
+                        VisualizeActionListener.printAlert("Highlight Sphere has been removed");
+                        isHighlightSelected=false;
+                    }
+                    i++;
+                }
+            }
+        });
+
         visualizeLog = new JTextPane();
         visualizeLog.setEditable(false);
         visualizeDoc = visualizeLog.getStyledDocument();
@@ -87,6 +107,7 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
         rightJToolBar.add(domain1234WestLabel);
         rightJToolBar.add(domain1234SouthLabel);
         rightJToolBar.add(domain1234EastLabel);
+        rightJToolBar.add(removeFocusButton);
         rightJToolBar.add(visualizeLogScrollPane);
     }
 
@@ -138,6 +159,7 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
 
     public static void  printSuccess (String text){
         visualizeStyle.addAttribute(StyleConstants.FontFamily, "Lucida Console");
+        visualizeStyle.addAttribute(StyleConstants.FontSize, new Integer(14));
         StyleConstants.setForeground(visualizeStyle, Color.GREEN);
         try { visualizeDoc.insertString(visualizeDoc.getLength(), ">>>" +text + "\n",visualizeStyle);
             visualizeLog.setCaretPosition(visualizeLog.getDocument().getLength());}
@@ -146,6 +168,7 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
 
     public static void  printMessage (String text){
         visualizeStyle.addAttribute(StyleConstants.FontFamily, "Lucida Console");
+        visualizeStyle.addAttribute(StyleConstants.FontSize, new Integer(14));
         StyleConstants.setForeground(visualizeStyle, Color.GREEN);
         try { visualizeDoc.insertString(visualizeDoc.getLength(), ">>>" +text + "\n",visualizeStyle);
             visualizeLog.setCaretPosition(visualizeLog.getDocument().getLength());}
@@ -154,6 +177,7 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
 
     public static void  printAlert (String text){
         visualizeStyle.addAttribute(StyleConstants.FontFamily, "Lucida Console");
+        visualizeStyle.addAttribute(StyleConstants.FontSize, new Integer(14));
         StyleConstants.setForeground(visualizeStyle, Color.GREEN);
         try { visualizeDoc.insertString(visualizeDoc.getLength(), ">>>" +text + "\n",visualizeStyle);
             visualizeLog.setCaretPosition(visualizeLog.getDocument().getLength());}
@@ -298,7 +322,6 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
                 }
             }
         }
-        isCompleted=true;
         /**Code for creating 3DNA Domain Blocks
          *The building units of the Visualization class comprises of 3 modular Blocks viz. domain12Block, domain34Block,
          *  domain1234Block
@@ -642,41 +665,45 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
     }
     @Override
     public void mouseClicked(MouseEvent e) {
-        visualizePickCanvas.setShapeLocation(e);
-        PickResult mouseClickResult = visualizePickCanvas.pickClosest();
-        if (mouseClickResult == null) {
-            int xCord=e.getX();
-            int yCord=e.getY();
-            System.out.println("Nothing selected at xCord "+xCord+" yCord"+yCord);
-        } else {
-            DNATransformGroup pickedSequence = (DNATransformGroup)mouseClickResult.getNode(PickResult.TRANSFORM_GROUP);
+        if (!isHighlightSelected) {
+            isHighlightSelected=true;
+            visualizePickCanvas.setShapeLocation(e);
+            PickResult mouseClickResult = visualizePickCanvas.pickClosest();
+            if (mouseClickResult == null) {
+                int xCord=e.getX();
+                int yCord=e.getY();
+                System.out.println("Nothing selected at xCord "+xCord+" yCord"+yCord);
+            } else {
+                DNATransformGroup pickedSequence = (DNATransformGroup)mouseClickResult.getNode(PickResult.TRANSFORM_GROUP);
 
-            if (pickedSequence!= null) {
-                VisualizeActionListener.printSuccess(pickedSequence.getClass().getName());
-                VisualizeActionListener.printSuccess(pickedSequence.getSequence());
-                Sphere sphere = new Sphere(1.0f);
-                Appearance sphereAppearance = new Appearance();
-                Color3f col = new Color3f(0.0f, 0.0f, 1.0f);
-                ColoringAttributes ca = new ColoringAttributes(col, ColoringAttributes.NICEST);
-                sphereAppearance.setColoringAttributes(ca);
-                TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.6f);
-                sphereAppearance.setTransparencyAttributes(transparencyAttributes);
-                sphere.setAppearance(sphereAppearance);
+                if (pickedSequence!= null) {
+                    VisualizeActionListener.printSuccess(pickedSequence.getClass().getName());
+                    VisualizeActionListener.printSuccess(pickedSequence.getSequence());
+                    Sphere sphere = new Sphere(1.0f);
+                    Appearance sphereAppearance = new Appearance();
+                    Color3f col = new Color3f(0.0f, 0.0f, 1.0f);
+                    ColoringAttributes ca = new ColoringAttributes(col, ColoringAttributes.NICEST);
+                    sphereAppearance.setColoringAttributes(ca);
+                    TransparencyAttributes transparencyAttributes = new TransparencyAttributes(TransparencyAttributes.NICEST,0.6f);
+                    sphereAppearance.setTransparencyAttributes(transparencyAttributes);
+                    sphere.setAppearance(sphereAppearance);
 
-                TransformGroup sphereTransformGroup= new TransformGroup();
-                Transform3D sphereTransform3D = new Transform3D();
-                sphereTransformGroup.addChild(sphere);
-                Vector3f spherePosition = new Vector3f(pickedSequence.xCord,pickedSequence.yCord,pickedSequence.zCord);
-                sphereTransform3D.setTranslation(spherePosition);
-                sphereTransformGroup.setTransform(sphereTransform3D);
+                    TransformGroup sphereTransformGroup= new TransformGroup();
+                    Transform3D sphereTransform3D = new Transform3D();
+                    sphereTransformGroup.addChild(sphere);
+                    Vector3f spherePosition = new Vector3f(pickedSequence.xCord,pickedSequence.yCord,pickedSequence.zCord);
+                    sphereTransform3D.setTranslation(spherePosition);
+                    sphereTransformGroup.setTransform(sphereTransform3D);
 
-                BranchGroup coverSphereBranchGroup = new BranchGroup();
-                coverSphereBranchGroup.addChild(sphereTransformGroup);
-                VisualizeActionListener.printMessage("Highlighting sphere has been called");
-
-                masterTrans.addChild(coverSphereBranchGroup);
-            }else{
-                VisualizeActionListener.printAlert("Unidentified Class");
+                    BranchGroup coverSphereBranchGroup = new BranchGroup();
+                    coverSphereBranchGroup.setCapability(BranchGroup.ALLOW_DETACH);
+                    coverSphereBranchGroup.addChild(sphereTransformGroup);
+                    VisualizeActionListener.printMessage("Highlighting sphere has been called");
+                    removeFocusButton.setEnabled(true);
+                    masterTrans.addChild(coverSphereBranchGroup);
+                }else{
+                    VisualizeActionListener.printAlert("Unidentified Class");
+                }
             }
         }
     }
@@ -737,7 +764,8 @@ public class VisualizeActionListener implements ActionListener, MouseListener {
     public static JButton resetButton;
     public static MouseRotate rotateBehaviour;
     public static BoundingSphere bounds;
-    public static Boolean isCompleted = false;
+    public static Boolean isHighlightSelected= false;
     public static float visualizeCanvasStep = 1.00f;
     public static PickCanvas visualizePickCanvas;
+    public static JButton removeFocusButton;
 }
