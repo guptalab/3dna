@@ -32,7 +32,7 @@ public class DeletePlaneActionListener implements ActionListener {
         final JTextField selectedPlaneNumberTextField= new JTextField(2);
 
         JButton okButton = new JButton("OK");
-        JButton cancelButton = new JButton("Cancel");
+        okButton.setBackground(Color.DARK_GRAY);
 
         selectedPlaneLabel.setToolTipText("<html><style>h4{color:white;}</style><h4>Enter the canvas plane (X/Y/Z)</h4></html>");
         selectedPlaneNumberLabel.setToolTipText("<html><style>h4{color:white;}</style><h4>Enter the plane co-ordinate you want to delete</h4></html>");

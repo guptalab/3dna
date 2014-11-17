@@ -14,7 +14,7 @@
     public boolean isTopmostBrick = false;
     public boolean isBottommostBrick = false;
     public boolean isDomain1Replaced = false, isDomain2Replaced = false, isDomain3Replaced = false, isDomain4Replaced = false;
-
+    public boolean isAdjacentToCavity = false;
 
 
     public char orientation;

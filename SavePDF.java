@@ -37,15 +37,15 @@ import com.itextpdf.text.pdf.PdfWriter;
 public class SavePDF {
 
     public CoordinatesSequenceMap c;
-	public SavePDF() {
+    public SavePDF() {
 
     }
 
     public void PrintData(){
-        ArrayList<VoxelToBrick> DNASequenceData = CoordinatesSequenceMap.finalData;
+        ArrayList<VoxelToBrick> DNASequenceData = CoordinatesSequenceMap.brickList;
         if(MainFrame.isCSVSaved == false) {
             c = new CoordinatesSequenceMap();
-            DNASequenceData = CoordinatesSequenceMap.finalData;
+            DNASequenceData = CoordinatesSequenceMap.brickList;
         }
         // TODO Auto-generated method stub
         long timeStamp;
@@ -92,6 +92,14 @@ public class SavePDF {
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         try {
+
+            for (int i = 0; i < DNASequenceData.size(); i++) {
+                if (DNASequenceData.get(i).isRemoved == true) {
+                    DNASequenceData.remove(i);
+                    i--;
+                }
+            }
+            
             document.add(new Paragraph("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B"));
             document.add(new Paragraph("Number of strands:"+DNASequenceData.size()+"\n"));
 
@@ -136,22 +144,22 @@ public class SavePDF {
 
 
             for (int i = 0; i < DNASequenceData.size(); i++) {
-                    //  	System.out.println("printing for"+i);
+                //  	System.out.println("printing for"+i);
                 table.addCell(selector.process(DNASequenceData.get(i).getCompleteSequence()));
                 if (DNASequenceData.get(i).x3 == -1)
                     table.addCell(selector.process("[" + DNASequenceData.get(i).x1 + "," +
-                          DNASequenceData.get(i).y1 + "," +
-                          DNASequenceData.get(i).z1 + "]" +
-                         "[" + DNASequenceData.get(i).x2 + "," +
-                          DNASequenceData.get(i).y2 + "," +
-                          DNASequenceData.get(i).z2 + "]"));
+                            DNASequenceData.get(i).y1 + "," +
+                            DNASequenceData.get(i).z1 + "]" +
+                            "[" + DNASequenceData.get(i).x2 + "," +
+                            DNASequenceData.get(i).y2 + "," +
+                            DNASequenceData.get(i).z2 + "]"));
                 else if (DNASequenceData.get(i).x1 == -1)
                     table.addCell(selector.process("[" + DNASequenceData.get(i).x3 + "," +
-                          DNASequenceData.get(i).y3 + "" +
-                          DNASequenceData.get(i).z3 + "]" +
-                          "[" + DNASequenceData.get(i).x4 + "," +
-                          DNASequenceData.get(i).y4 + "," +
-                          DNASequenceData.get(i).z4 + "]"));
+                            DNASequenceData.get(i).y3 + "" +
+                            DNASequenceData.get(i).z3 + "]" +
+                            "[" + DNASequenceData.get(i).x4 + "," +
+                            DNASequenceData.get(i).y4 + "," +
+                            DNASequenceData.get(i).z4 + "]"));
                 else
                     table.addCell(selector.process("[" + DNASequenceData.get(i).x1 + "," +
                             DNASequenceData.get(i).y1 + "," +
@@ -259,16 +267,16 @@ public class SavePDF {
         });
 
 
-        System.out.println("Document Generated...!!!!!!");
+        MainFrame.printLog("pdf file has been successfully created in your project workspace", Color.green);
 
     }
 
     public void PrintBoundaryData(){
         System.out.println(""+MainFrame.isBoundaryCalled+""+MainFrame.isPDFSaved+""+MainFrame.isPDFBoundarySaved+""+MainFrame.isCSVSaved+""+MainFrame.isCSVBoundarySaved);
-        ArrayList<VoxelToBrick> DNASequenceBoundaryData=CoordinatesSequenceMap.finalBoundaryData;
+        ArrayList<VoxelToBrick> DNASequenceBoundaryData=CoordinatesSequenceMap.boundaryBrickList;
         if(MainFrame.isCSVBoundarySaved==false) {
             c = new CoordinatesSequenceMap();
-            DNASequenceBoundaryData=CoordinatesSequenceMap.finalBoundaryData;
+            DNASequenceBoundaryData=CoordinatesSequenceMap.boundaryBrickList;
         }
         // TODO Auto-generated method stub
         long timeStamp;
@@ -317,7 +325,12 @@ public class SavePDF {
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         try {
-
+            for (int i = 0; i < DNASequenceBoundaryData.size(); i++) {
+                if (DNASequenceBoundaryData.get(i).isRemoved == true) {
+                    DNASequenceBoundaryData.remove(i);
+                    i--;
+                }
+            }
             document.add(new Paragraph("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B with boundary sequences"));
             document.add(new Paragraph("Number of strands:"+DNASequenceBoundaryData.size()+"\n"));
 
@@ -358,149 +371,149 @@ public class SavePDF {
             table.addCell(selector.process("Helix and Z-coordinates"));
 
 
-                for (int i = 0; i < DNASequenceBoundaryData.size(); i++) {
-                    //  	System.out.println("printing for"+i);
-                    table.addCell(selector.process(DNASequenceBoundaryData.get(i).getCompleteSequence()));
-                    if(DNASequenceBoundaryData.get(i).x5 != -1){
-                        if (DNASequenceBoundaryData.get(i).x3 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
-                                    DNASequenceBoundaryData.get(i).y1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x2 + "," +
-                                    DNASequenceBoundaryData.get(i).y2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x5 + "," +
-                                    DNASequenceBoundaryData.get(i).y5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x6 + "," +
-                                    DNASequenceBoundaryData.get(i).y6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 + "]"));
+            for (int i = 0; i < DNASequenceBoundaryData.size(); i++) {
+                //  	System.out.println("printing for"+i);
+                table.addCell(selector.process(DNASequenceBoundaryData.get(i).getCompleteSequence()));
+                if(DNASequenceBoundaryData.get(i).x5 != -1){
+                    if (DNASequenceBoundaryData.get(i).x3 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
+                                DNASequenceBoundaryData.get(i).y1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x2 + "," +
+                                DNASequenceBoundaryData.get(i).y2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x5 + "," +
+                                DNASequenceBoundaryData.get(i).y5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x6 + "," +
+                                DNASequenceBoundaryData.get(i).y6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 + "]"));
 
-                        else if (DNASequenceBoundaryData.get(i).x1 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x3 + "," +
-                                    DNASequenceBoundaryData.get(i).y3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x4 + "," +
-                                    DNASequenceBoundaryData.get(i).y4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x5 + "," +
-                                    DNASequenceBoundaryData.get(i).y5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x6 + "," +
-                                    DNASequenceBoundaryData.get(i).y6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 + "]"));
-                        else
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
-                                    DNASequenceBoundaryData.get(i).y1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x2 + "," +
-                                    DNASequenceBoundaryData.get(i).y2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x3 + "," +
-                                    DNASequenceBoundaryData.get(i).y3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x4 + "," +
-                                    DNASequenceBoundaryData.get(i).y4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x5 + "," +
-                                    DNASequenceBoundaryData.get(i).y5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x6 + "," +
-                                    DNASequenceBoundaryData.get(i).y6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 + "]"));
-                    }
-
-                    else{
-                        if (DNASequenceBoundaryData.get(i).x3 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
-                                    DNASequenceBoundaryData.get(i).y1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x2 + "," +
-                                    DNASequenceBoundaryData.get(i).y2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "]"
-                                    ));
-
-                        else if (DNASequenceBoundaryData.get(i).x1 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x3 + "," +
-                                    DNASequenceBoundaryData.get(i).y3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x4 + "," +
-                                    DNASequenceBoundaryData.get(i).y4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "]"));
-                        else
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
-                                    DNASequenceBoundaryData.get(i).y1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x2 + "," +
-                                    DNASequenceBoundaryData.get(i).y2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x3 + "," +
-                                    DNASequenceBoundaryData.get(i).y3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "]" +
-                                    "[" + DNASequenceBoundaryData.get(i).x4 + "," +
-                                    DNASequenceBoundaryData.get(i).y4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "]"));
-                    }
-
-                    //adding the helix coordinates
-                    if(DNASequenceBoundaryData.get(i).x5 != -1){
-                        if (DNASequenceBoundaryData.get(i).x3 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "," +
-                                    DNASequenceBoundaryData.get(i).helix2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "," +
-                                    DNASequenceBoundaryData.get(i).helix5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "," +
-                                    DNASequenceBoundaryData.get(i).helix6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 +"]"));
-
-                        else if (DNASequenceBoundaryData.get(i).x1 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "," +
-                                    DNASequenceBoundaryData.get(i).helix4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "," +
-                                    DNASequenceBoundaryData.get(i).helix5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "," +
-                                    DNASequenceBoundaryData.get(i).helix6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 +"]"));
-                        else
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "," +
-                                    DNASequenceBoundaryData.get(i).helix2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "," +
-                                    DNASequenceBoundaryData.get(i).helix3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "," +
-                                    DNASequenceBoundaryData.get(i).helix4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 + "," +
-                                    DNASequenceBoundaryData.get(i).helix5 + "," +
-                                    DNASequenceBoundaryData.get(i).z5 + "," +
-                                    DNASequenceBoundaryData.get(i).helix6 + "," +
-                                    DNASequenceBoundaryData.get(i).z6 + "]"));
-                    }
-
-                    else{
-                        if (DNASequenceBoundaryData.get(i).x3 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "," +
-                                    DNASequenceBoundaryData.get(i).helix2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 +"]"));
-
-                        else if (DNASequenceBoundaryData.get(i).x1 == -1)
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "," +
-                                    DNASequenceBoundaryData.get(i).helix4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 +"]"));
-                        else
-                            table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
-                                    DNASequenceBoundaryData.get(i).z1 + "," +
-                                    DNASequenceBoundaryData.get(i).helix2 + "," +
-                                    DNASequenceBoundaryData.get(i).z2 + "," +
-                                    DNASequenceBoundaryData.get(i).helix3 + "," +
-                                    DNASequenceBoundaryData.get(i).z3 + "," +
-                                    DNASequenceBoundaryData.get(i).helix4 + "," +
-                                    DNASequenceBoundaryData.get(i).z4 +"]"));
-                    }
+                    else if (DNASequenceBoundaryData.get(i).x1 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x3 + "," +
+                                DNASequenceBoundaryData.get(i).y3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x4 + "," +
+                                DNASequenceBoundaryData.get(i).y4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x5 + "," +
+                                DNASequenceBoundaryData.get(i).y5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x6 + "," +
+                                DNASequenceBoundaryData.get(i).y6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 + "]"));
+                    else
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
+                                DNASequenceBoundaryData.get(i).y1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x2 + "," +
+                                DNASequenceBoundaryData.get(i).y2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x3 + "," +
+                                DNASequenceBoundaryData.get(i).y3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x4 + "," +
+                                DNASequenceBoundaryData.get(i).y4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x5 + "," +
+                                DNASequenceBoundaryData.get(i).y5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x6 + "," +
+                                DNASequenceBoundaryData.get(i).y6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 + "]"));
                 }
+
+                else{
+                    if (DNASequenceBoundaryData.get(i).x3 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
+                                        DNASequenceBoundaryData.get(i).y1 + "," +
+                                        DNASequenceBoundaryData.get(i).z1 + "]" +
+                                        "[" + DNASequenceBoundaryData.get(i).x2 + "," +
+                                        DNASequenceBoundaryData.get(i).y2 + "," +
+                                        DNASequenceBoundaryData.get(i).z2 + "]"
+                        ));
+
+                    else if (DNASequenceBoundaryData.get(i).x1 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x3 + "," +
+                                DNASequenceBoundaryData.get(i).y3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x4 + "," +
+                                DNASequenceBoundaryData.get(i).y4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "]"));
+                    else
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).x1 + "," +
+                                DNASequenceBoundaryData.get(i).y1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x2 + "," +
+                                DNASequenceBoundaryData.get(i).y2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x3 + "," +
+                                DNASequenceBoundaryData.get(i).y3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "]" +
+                                "[" + DNASequenceBoundaryData.get(i).x4 + "," +
+                                DNASequenceBoundaryData.get(i).y4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "]"));
+                }
+
+                //adding the helix coordinates
+                if(DNASequenceBoundaryData.get(i).x5 != -1){
+                    if (DNASequenceBoundaryData.get(i).x3 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "," +
+                                DNASequenceBoundaryData.get(i).helix2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "," +
+                                DNASequenceBoundaryData.get(i).helix5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "," +
+                                DNASequenceBoundaryData.get(i).helix6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 +"]"));
+
+                    else if (DNASequenceBoundaryData.get(i).x1 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "," +
+                                DNASequenceBoundaryData.get(i).helix4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "," +
+                                DNASequenceBoundaryData.get(i).helix5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "," +
+                                DNASequenceBoundaryData.get(i).helix6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 +"]"));
+                    else
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "," +
+                                DNASequenceBoundaryData.get(i).helix2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "," +
+                                DNASequenceBoundaryData.get(i).helix3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "," +
+                                DNASequenceBoundaryData.get(i).helix4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 + "," +
+                                DNASequenceBoundaryData.get(i).helix5 + "," +
+                                DNASequenceBoundaryData.get(i).z5 + "," +
+                                DNASequenceBoundaryData.get(i).helix6 + "," +
+                                DNASequenceBoundaryData.get(i).z6 + "]"));
+                }
+
+                else{
+                    if (DNASequenceBoundaryData.get(i).x3 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "," +
+                                DNASequenceBoundaryData.get(i).helix2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 +"]"));
+
+                    else if (DNASequenceBoundaryData.get(i).x1 == -1)
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "," +
+                                DNASequenceBoundaryData.get(i).helix4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 +"]"));
+                    else
+                        table.addCell(selector.process("[" + DNASequenceBoundaryData.get(i).helix1 + "," +
+                                DNASequenceBoundaryData.get(i).z1 + "," +
+                                DNASequenceBoundaryData.get(i).helix2 + "," +
+                                DNASequenceBoundaryData.get(i).z2 + "," +
+                                DNASequenceBoundaryData.get(i).helix3 + "," +
+                                DNASequenceBoundaryData.get(i).z3 + "," +
+                                DNASequenceBoundaryData.get(i).helix4 + "," +
+                                DNASequenceBoundaryData.get(i).z4 +"]"));
+                }
+            }
 
             document.add(table);
         } catch (DocumentException e1) {
@@ -571,7 +584,7 @@ public class SavePDF {
                 fileSavedFrame.dispose();
             }
         });
-        System.out.println("PDF Document with boundary bricks Generated...!!!!!!");
+        MainFrame.printLog("pdf file with boundary sequences has been successfully created in your project workspace", Color.green);
     }
 
 

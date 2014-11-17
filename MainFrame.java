@@ -16,12 +16,13 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.vecmath.Color3f;
+import javax.vecmath.Vector3f;
 
+import static java.awt.BorderLayout.NORTH;
 @SuppressWarnings("serial")
 // This is the main class of the software that invokes the main GUI.
 
-public class MainFrame extends JFrame{
+public class MainFrame extends JFrame {
 
     public MainFrame(){
         super("3DNA");
@@ -31,14 +32,15 @@ public class MainFrame extends JFrame{
 
         //adding JPanels
         JPanel basePanel=new JPanel(); //Base JPanel on which all the other Split Panes/Toolbars/children JPanels are added
+
         basePanel.setLayout(new BorderLayout()); //Adding basePanel to the Frame
         getContentPane().add(basePanel);
         definePanels(); // calling function definePanels() that declares leftJToolBar, topRightJPanel, bottomRightJPanel
 
         //configure Panels and Split Panes
-        hPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT );
+        hPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,false );
         basePanel.add(hPanel,BorderLayout.CENTER );
-        vPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT );
+        vPanel = new JSplitPane(JSplitPane.VERTICAL_SPLIT,false );
         hPanel.setRightComponent(vPanel);
         vPanel.setTopComponent(topRightJPanel);
         vPanel.setBottomComponent(bottomRightJPanel);
@@ -67,6 +69,7 @@ public class MainFrame extends JFrame{
         logScrollPane = new JScrollPane(log);
         logScrollPane.setBackground(Color.DARK_GRAY);
         bottomRightJPanel.add(logScrollPane);
+        bottomRightJPanel.setVisible(false);
 
         //leftJToolBar supports all the buttons that are used to move around in the canvas
         leftJToolBar = new JToolBar("Canvas Control", JToolBar.VERTICAL);
@@ -83,6 +86,8 @@ public class MainFrame extends JFrame{
         ImageIcon rightArrowIcon = new ImageIcon("icons/arrow-right.png");
         ImageIcon resetIcon = new ImageIcon("icons/reset.png");
         ImageIcon undoIcon = new ImageIcon("icons/undo.png");
+        ImageIcon rotateClockwise = new ImageIcon("icons/next.png");
+        ImageIcon rotateAntiClockwise = new ImageIcon("icons/previous.png");
 
         zoomInButton = new JButton(zoominIcon);
         zoomInButton.setBackground(Color.DARK_GRAY);
@@ -100,6 +105,10 @@ public class MainFrame extends JFrame{
         resetButton.setBackground(Color.DARK_GRAY);
         undoButton = new JButton(undoIcon);
         undoButton.setBackground(Color.DARK_GRAY);
+        rotateClockwiseButton = new JButton(rotateClockwise);
+        rotateClockwiseButton.setBackground(Color.DARK_GRAY);
+        rotateAntiClockwiseButton = new JButton(rotateAntiClockwise);
+        rotateAntiClockwiseButton.setBackground(Color.DARK_GRAY);
 
         zoomInButton.addActionListener(new ZoomInActionListener());
         zoomOutButton.addActionListener(new ZoomOutActionListener());
@@ -109,6 +118,19 @@ public class MainFrame extends JFrame{
         rightButton.addActionListener(new RightButtonActionListener());
         resetButton.addActionListener(new ResetButtonActionListener());
         undoButton.addActionListener(new UndoActionListener());
+        rotateAntiClockwiseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                CanvasActionListener.rotateCanvasAntiClockWise();
+            }
+        });
+        rotateClockwiseButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent actionEvent) {
+                CanvasActionListener.rotateCanvasClockWise();
+            }
+        });
+
 
         leftJToolBar.add(Box.createVerticalStrut(20));
         leftJToolBar.add(zoomInButton);
@@ -132,6 +154,9 @@ public class MainFrame extends JFrame{
         leftJToolBar.add(undoButton);
         leftJToolBar.add(Box.createVerticalStrut(10));
         leftJToolBar.addSeparator();
+        leftJToolBar.add(rotateClockwiseButton);
+        leftJToolBar.add(Box.createVerticalStrut(10));
+        leftJToolBar.add(rotateAntiClockwiseButton);
 
         //Main Display Panel
         topRightJPanel = new JPanel();
@@ -143,11 +168,7 @@ public class MainFrame extends JFrame{
                 "<h1>&nbsp;3DNA : A tool for DNA Sculpting</h1>" +
                 "<h3>&nbsp;3DNA can be used to draw complex shapes on a 3D molecular canvas and provide stable,<br>" +
                 "&nbsp;error-free sequences to envisage the structure drawn at nano-scale.<br> " +
-                "&nbsp;The software is based on the research led by " +
-                "<a href=\"http://yin.hms.harvard.edu/people/ke.yonggang/index.html\">Yonggang Ke</a>, " +
-                "<a href=\"http://yin.hms.harvard.edu/people/ong.luvena/index.html\">Luvena L. Ong</a>," +
-                "<a href=\"http://wyss.harvard.edu/viewpage/127/william-shih\">William M. Shih</a> and<br>&nbsp  " +
-                "<a href=\"http://yin.hms.harvard.edu/people/yin.peng/index.html\">Peng Yin</a> (Harvard University) on <a href=\"http://www.sciencemag.org/content/338/6111/1177.short\">" +
+                "&nbsp;The software is based on <a href=\"http://www.sciencemag.org/content/338/6111/1177.short\">" +
                 "Three-Dimensional Structures Self-Assembled from DNA Bricks.</a></h3>" +
                 "<h3>&nbsp;3DNA has been developed for the sole-purpose of generating a user-friendly, " +
                 "interactive<br> &nbsp;environment for users to envisage DNA structures, and get the " +
@@ -174,7 +195,6 @@ public class MainFrame extends JFrame{
         JScrollPane editorScrollPane = new JScrollPane(editorPane);
         topRightJPanel.add(editorScrollPane);
 
-
         //Advanced panel toolbar
         rightJToolBar = new JToolBar("Advanced Options",JToolBar.VERTICAL);
         rightJToolBar.setBackground(Color.DARK_GRAY);
@@ -182,10 +202,10 @@ public class MainFrame extends JFrame{
 
         JLabel multipleDeletionLabel = new JLabel("<html><style>h4{color:white;}</style><h4> Delete multiple voxels: </h4></html>");
         ImageIcon deletePlaneIcon = new ImageIcon("icons/plane.png");
-        deletePlaneButton = new JButton("<html><style>h4{color:white;}</style><h4> Plane </h4></html>", deletePlaneIcon);
+        deletePlaneButton = new JButton("<html><style>h4{color:white;}</style><h4>Delete Plane </h4></html>", deletePlaneIcon);
         deletePlaneButton.setBackground(Color.DARK_GRAY);
         ImageIcon deleteRowColoumnIcon = new ImageIcon("icons/plane.png");
-        deleteRowColoumnButton = new JButton("<html><style>h4{color:white;}</style><h4> Row/Column </h4></html>", deleteRowColoumnIcon);
+        deleteRowColoumnButton = new JButton("<html><style>h4{color:white;}</style><h4>Delete Row/Column </h4></html>", deleteRowColoumnIcon);
         deleteRowColoumnButton.setBackground(Color.DARK_GRAY);
         deleteRowColoumnButton.addActionListener(new DeleteRowActionListener());
         deletePlaneButton.addActionListener(new DeletePlaneActionListener());
@@ -194,97 +214,74 @@ public class MainFrame extends JFrame{
         deleteButtonGroup.add(deletePlaneButton);
         deleteButtonGroup.add(deleteRowColoumnButton);
 
-        JLabel uploadSequencesLabel = new JLabel("<html><style>h4{color:white;}</style><h4> Upload DNA Sequence Files: </h4></html>");
+        JLabel chooseSequencesLabel = new JLabel("<html><style>h4{color:white;}</style><h4> Choose DNA Sequences List: </h4></html>");
+        ImageIcon chooseSequencesIcon = new ImageIcon("icons/csv.png");
+        JButton chooseSequencesButton = new JButton("<html><style>h4{color:white;}</style><h4>Change List</h4></html>",chooseSequencesIcon);
+        chooseSequencesButton.setBackground(Color.DARK_GRAY);
+        chooseSequencesButton.addActionListener(new UploadSequenceActionListener());
 
-        ImageIcon uploadSequencesIcon = new ImageIcon("icons/csv.png");
-        JButton uploadSequencesButton = new JButton("<html><style>h4{color:white;}</style><h4>Choose Files</h4></html>",uploadSequencesIcon);
-        uploadSequencesButton.setBackground(Color.DARK_GRAY);
-        uploadSequencesButton.addActionListener(new UploadSequenceActionListener());
+        JLabel otherFeatures = new JLabel("<html><style>h4{color:white;}</style><h4> Others: </h4></html>");
+        otherFeatures.setBackground(Color.DARK_GRAY);
+        JButton enableBoundarySequencesButton = new JButton("<html><style>h4{color:white;}</style><h4>Boundary Bricks</h4></html>");
+        enableBoundarySequencesButton.setBackground(Color.DARK_GRAY);
+        enableBoundarySequencesButton.addActionListener((ActionListener) new EnableBoundarySequencesActionListener());
 
-        JLabel enableBoundary = new JLabel("<html><style>h4{color:white;}</style><h4> Enable boundary bricks in: </h4></html>");
-        enableBoundary.setBackground(Color.DARK_GRAY);
+        JButton enableProtectorSequencesButton = new JButton("<html><style>h4{color:white;}</style><h4>Protector Bricks</h4></html>");
+        enableProtectorSequencesButton.setBackground(Color.DARK_GRAY);
+        enableProtectorSequencesButton.addActionListener((ActionListener) new EnableProtectorSequencesActionListener());
 
-        final JCheckBox xMinPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Min-X Plane</h4></html>");
-        xMinPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
-        final JCheckBox xMaxPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Max-X Plane</h4></html>");
-        xMaxPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
-        final JCheckBox yMinPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Min-Y Plane</h4></html>");
-        yMinPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
-        final JCheckBox yMaxPlaneBoundaryCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Max-Y Plane</h4></html>");
-        yMaxPlaneBoundaryCheckbox.setBackground(Color.DARK_GRAY);
-        JLabel enableProtector = new JLabel("<html><style>h4{color:white;}</style><h4> Enable protector bricks in: </h4></html>");
-        enableProtector.setBackground(Color.DARK_GRAY);
+        JButton enableCrystalButton = new JButton("<html><style>h4{color:white;}</style><h4>Crystal</h4></html>");
+        enableCrystalButton.setBackground(Color.DARK_GRAY);
+        enableCrystalButton.addActionListener((ActionListener) new EnableCrystalActionListener());
 
-        zMinPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Min-Z Plane</h4></html>");
-        zMinPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
+        ButtonGroup otherButtonGroup = new ButtonGroup();
+        otherButtonGroup.add(enableBoundarySequencesButton);
+        otherButtonGroup.add(enableProtectorSequencesButton);
+        otherButtonGroup.add(enableCrystalButton);
 
-        zMaxPlaneProtectorCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Max-Z Plane</h4></html>");
-        zMaxPlaneProtectorCheckbox.setBackground(Color.DARK_GRAY);
+        final JCheckBox cavityCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Boundary Bricks around Cavity</h4></html>");
+        cavityCheckbox.setBackground(Color.DARK_GRAY);
+        final JCheckBox replaceWithTCheckbox = new JCheckBox("<html><style>h4{color:white;}</style><h4>Poly-1T domains around missing voxels</h4></html>");
+        replaceWithTCheckbox.setBackground(Color.DARK_GRAY);
 
-        xMinPlaneBoundaryCheckbox.addActionListener(new ActionListener() {
+
+        replaceWithTCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (xMinPlaneBoundaryCheckbox.isSelected() == true)
-                    isMinXBoundaryPlaneEnabled = true;
+                if (replaceWithTCheckbox.isSelected() == true)
+                    isReplaceWithTEnabled = true;
                 else
-                    isMinXBoundaryPlaneEnabled = false;
+                    isReplaceWithTEnabled = false;
+                MainFrame.isCSVSaved = false;
+                MainFrame.isPDFSaved = false;
+                MainFrame.isCSVBoundarySaved = false;
+                MainFrame.isPDFBoundarySaved = false;
             }
         });
-        xMaxPlaneBoundaryCheckbox.addActionListener(new ActionListener() {
+        cavityCheckbox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (xMaxPlaneBoundaryCheckbox.isSelected() == true)
-                    isMaxXBoundaryPlaneEnabled = true;
+                if (cavityCheckbox.isSelected() == true)
+                    isCavityEnabled = true;
                 else
-                    isMaxXBoundaryPlaneEnabled = false;
+                    isCavityEnabled = false;
             }
         });
-
-        yMinPlaneBoundaryCheckbox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (yMinPlaneBoundaryCheckbox.isSelected() == true)
-                    isMinYBoundaryPlaneEnabled = true;
-                else
-                    isMinYBoundaryPlaneEnabled = false;
-            }
-        });
-        yMaxPlaneBoundaryCheckbox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (yMaxPlaneBoundaryCheckbox.isSelected() == true)
-                    isMaxYBoundaryPlaneEnabled = true;
-                else
-                    isMaxYBoundaryPlaneEnabled = false;
-            }
-        });
-
-        zMaxPlaneProtectorCheckbox.addActionListener(new ZMaxPlaneProtectorActionListener());
-        zMinPlaneProtectorCheckbox.addActionListener(new ZMinPlaneProtectorActionListener());
-
         rightJToolBar.add(multipleDeletionLabel);
         rightJToolBar.add(deletePlaneButton);
         rightJToolBar.add(deleteRowColoumnButton);
-        rightJToolBar.add(Box.createVerticalStrut(10));
         rightJToolBar.add(new JToolBar.Separator());
-        rightJToolBar.add(Box.createVerticalStrut(10));
-        rightJToolBar.add(uploadSequencesLabel);
-        rightJToolBar.add(uploadSequencesButton);
-        rightJToolBar.add(Box.createVerticalStrut(10));
+        rightJToolBar.add(chooseSequencesLabel);
+        rightJToolBar.add(chooseSequencesButton);
         rightJToolBar.add(new JToolBar.Separator());
-        rightJToolBar.add(Box.createVerticalStrut(10));
-        rightJToolBar.add(enableBoundary);
-        rightJToolBar.add(xMinPlaneBoundaryCheckbox);
-        rightJToolBar.add(xMaxPlaneBoundaryCheckbox);
-        rightJToolBar.add(yMinPlaneBoundaryCheckbox);
-        rightJToolBar.add(yMaxPlaneBoundaryCheckbox);
-        rightJToolBar.add(Box.createVerticalStrut(10));
+        rightJToolBar.add(otherFeatures);
+        rightJToolBar.add(enableBoundarySequencesButton);
+        rightJToolBar.add(enableProtectorSequencesButton);
+        rightJToolBar.add(enableCrystalButton);
         rightJToolBar.add(new JToolBar.Separator());
-        rightJToolBar.add(Box.createVerticalStrut(10));
-        rightJToolBar.add(enableProtector);
-        rightJToolBar.add(zMinPlaneProtectorCheckbox);
-        rightJToolBar.add(zMaxPlaneProtectorCheckbox);
-        rightJToolBar.add(Box.createVerticalStrut(10));
+        rightJToolBar.add(cavityCheckbox);
+        rightJToolBar.add(new JToolBar.Separator());
+        rightJToolBar.add(replaceWithTCheckbox);
         rightJToolBar.add(new JToolBar.Separator());
 
         rightJToolBar.setVisible(false);
@@ -297,19 +294,19 @@ public class MainFrame extends JFrame{
         JToolBar topJToolBar=new JToolBar("Quick Links");
 
         topJToolBar.setBackground(Color.DARK_GRAY);
-        this.add(topJToolBar,BorderLayout.NORTH);
-        ImageIcon newi = new ImageIcon("icons/new-canvas.png");
+        this.add(topJToolBar, NORTH);
+        ImageIcon newi = new ImageIcon("icons/new-canvas-icon.png");
         ImageIcon estimate = new ImageIcon("icons/estimator.png");
         ImageIcon importData = new ImageIcon("icons/import.png");
         ImageIcon exportData = new ImageIcon("icons/export.png");
         ImageIcon SavingOptions = new ImageIcon("icons/arrow-down.png");
         ImageIcon viewGraph = new ImageIcon("icons/analysis.png");
-        ImageIcon advancedoptionIcon = new ImageIcon("icons/zoomin.png");
+        ImageIcon advancedoptionIcon = new ImageIcon("icons/advanced-panel-icon.png");
         ImageIcon visualize = new ImageIcon("icons/visualize.png");
-        ImageIcon youtube = new ImageIcon("icons/youtube.png");
-        ImageIcon twitter = new ImageIcon("icons/twitter.png");
-        ImageIcon facebook = new ImageIcon("icons/facebook.png");
-        ImageIcon quora = new ImageIcon("icons/quora.png");
+        ImageIcon youtube = new ImageIcon("icons/youtube-icon.png");
+        ImageIcon twitter = new ImageIcon("icons/twitter-icon.png");
+        ImageIcon facebook = new ImageIcon("icons/facebook-icon.png");
+        ImageIcon gitHub = new ImageIcon("icons/gitHub-icon.png");
         ImageIcon about = new ImageIcon("icons/about.png");
         ImageIcon usermanual = new ImageIcon("icons/usermanual.png");
         ImageIcon feedback = new ImageIcon("icons/feedback.png");
@@ -348,8 +345,8 @@ public class MainFrame extends JFrame{
         JButton twitterButton = new JButton(twitter);
         twitterButton.setBackground(Color.DARK_GRAY);
 
-        JButton quoraButton = new JButton(quora);
-        quoraButton.setBackground(Color.DARK_GRAY);
+        JButton gitHubButton = new JButton(gitHub);
+        gitHubButton.setBackground(Color.DARK_GRAY);
 
         JButton aboutButton = new JButton(about);
         aboutButton.setBackground(Color.DARK_GRAY);
@@ -370,7 +367,7 @@ public class MainFrame extends JFrame{
         exportButton.setToolTipText("Export File");
         savingOptionsButton.setToolTipText("Save DNA sequences");
         graphButton.setToolTipText("3DNA domain analysis");
-        visualizeButton.setToolTipText("Visualize Shape");
+        visualizeButton.setToolTipText("Visualize Structure");
         demoButton.setToolTipText("Software Demo");
         aboutButton.setToolTipText("About 3DNA");
         feedbackButton.setToolTipText("3DNA Feedback Page");
@@ -393,11 +390,11 @@ public class MainFrame extends JFrame{
         topJToolBar.addSeparator();
         topJToolBar.add(estimateButton);
         topJToolBar.addSeparator();
-        topJToolBar.add(Box.createHorizontalStrut(80));
-        topJToolBar.add(advancedOptionButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
-        topJToolBar.addSeparator();
-        topJToolBar.add(graphButton);
+        topJToolBar.add(advancedOptionButton);
+//        topJToolBar.add(Box.createHorizontalStrut(10));
+//        topJToolBar.addSeparator();
+//        topJToolBar.add(graphButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
         topJToolBar.addSeparator();
         topJToolBar.add(Box.createHorizontalStrut(10));
@@ -415,7 +412,7 @@ public class MainFrame extends JFrame{
         topJToolBar.add(Box.createHorizontalStrut(10));
         topJToolBar.add(youtubeButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
-        topJToolBar.add(quoraButton);
+        topJToolBar.add(gitHubButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
         topJToolBar.add(twitterButton);
         topJToolBar.add(Box.createHorizontalStrut(10));
@@ -433,8 +430,8 @@ public class MainFrame extends JFrame{
         youtubeButton.addActionListener(new YoutubeActionListener());
         fbButton.addActionListener(new FacebookActionListener());
         twitterButton.addActionListener(new TwitterActionListener());
-        quoraButton.addActionListener(new QuoraActionListener());
-        visualizeButton.addActionListener(new VisualizeActionListener());
+        gitHubButton.addActionListener(new GitHubActionListener());
+        visualizeButton.addActionListener(new VisualizationActionListener());
         userManualButton.addActionListener(new UserManualActionListener());
         feedbackButton.addActionListener(new ProductFeedbackActionListener());
         aboutButton.addActionListener(new AboutActionListener());
@@ -481,6 +478,7 @@ public class MainFrame extends JFrame{
         undoButton.setEnabled(true);
         leftJToolBar.setVisible(true);
         advancedOptionButton.setEnabled(true);
+        bottomRightJPanel.setEnabled(true);
     }
 
     public static void enableGraph(){
@@ -654,6 +652,8 @@ public class MainFrame extends JFrame{
             licenseFrame.dispose();
         }
     }
+
+
     @SuppressWarnings("unused")
     public static void main(String []args){
         try {
@@ -663,13 +663,22 @@ public class MainFrame extends JFrame{
             JOptionPane.showMessageDialog(null, "Exception Occurred with the GUI Toolkit","Exception",JOptionPane.ERROR_MESSAGE);
         }
         mainFrame=new MainFrame();
+
         ImageIcon img = new ImageIcon("icons/logo_half.png");
         mainFrame.setIconImage(img.getImage());
         mainFrame.acceptRejectLicense();
-        if (!licenseAccepted) {
+        MainFrame.printLog("Welcome",Color.GREEN);
+        MainFrame.printLog("System Langaugae: "+ osLanguage,Color.GREEN);
+        if(osLanguage.equals("de")){
+            delimiter = ";";
+        } else {
+            delimiter = ",";
+        }if (!licenseAccepted) {
             System.exit(0);
         }
     }
+    public static ImageIcon img = new ImageIcon("icons/software_logo.png");
+    public static java.awt.Image imag=img.getImage();
     public static Toolkit toolkit=Toolkit.getDefaultToolkit();
     public static int screenWidth = toolkit.getScreenSize().width;
     public static int screenHeight = toolkit.getScreenSize().height;
@@ -687,12 +696,15 @@ public class MainFrame extends JFrame{
     public static JPanel bottomRightJPanel;
     public static JButton deleteRowColoumnButton;
     public static JButton deletePlaneButton;
+    public static JButton changeAppearanceButton;
     public static String osName = System.getProperty("os.name");
+    public static String osLanguage = System.getProperty("user.language");
+    public static String delimiter;
     public static String projectName;
     public static String projectPath;
-    public static String importedHalfBrickFilePath;
-    public static String importedFullBrickFilePath;
-    public static String importedBoundaryBrickFilePath;
+    public static String importedHalfBrickFilePath = "16ntFile.csv";
+    public static String importedFullBrickFilePath = "32ntFile.csv";
+    public static String importedBoundaryBrickFilePath = "48ntFile.csv";
     public static JButton estimateButton;
     public static JButton exportButton;
     public static JButton savingOptionsButton;
@@ -707,6 +719,8 @@ public class MainFrame extends JFrame{
     public static JButton resetButton;
     public static JButton graphButton;
     public static JButton advancedOptionButton;
+    public static JButton rotateClockwiseButton;
+    public static JButton rotateAntiClockwiseButton;
     public static int height=0; //height of the canvas
     public static int width=0;  //width of the canvas
     public static int depth=0;  //depth of the canvas
@@ -715,8 +729,10 @@ public class MainFrame extends JFrame{
     public static boolean[][][]deletedCoordinates=new boolean[20][20][20];
     public static boolean isProjectCreated;
     public static boolean isImported=false;
+    public static boolean isRandomSequencesListEnabled = true;
+    public static boolean isYonggangSequencesListEnabled = false;
+    public static boolean isImportSequencesListEnabled = false;
     public static boolean licenseAccepted = false;
-    public static boolean isDNASequencesFileImported = false;
     public static boolean isBoundaryCalled=false;
     public static boolean isPDFBoundarySaved=false;
     public static boolean isCSVBoundarySaved=false;
@@ -728,7 +744,14 @@ public class MainFrame extends JFrame{
     public static boolean isMinYBoundaryPlaneEnabled = false;
     public static boolean isMaxXBoundaryPlaneEnabled = false;
     public static boolean isMaxYBoundaryPlaneEnabled = false;
+    public static boolean isZCrystalEnabled = false;
+    public static boolean isXCrystalEnabled = false;
+    public static boolean isYCrystalEnabled = false;
+    public static boolean isReplaceWithTEnabled = false;
+    public static boolean isCavityEnabled = false;
     public static Appearance protectorCubeAppearance;
     public static JCheckBox zMinPlaneProtectorCheckbox;
     public static JCheckBox zMaxPlaneProtectorCheckbox;
+    public static boolean isAppearanceTransparent=false;
+
 }

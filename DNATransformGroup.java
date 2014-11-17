@@ -23,5 +23,11 @@ public class DNATransformGroup extends TransformGroup {
     public float xCord;
     public float yCord;
     public float zCord;
-    public boolean isSelected = false;
+    public boolean isHalfBrick;
+    public boolean isDomain12;
+    public boolean isDomain34;
+    public boolean isNorthBrick;
+    public boolean isWestBrick;
+    public boolean isSouthBrick;
+    public boolean isEastBrick;
 }

@@ -23,13 +23,13 @@ public class SaveCSVFromImportedFile {
     //This function saves the detailed data without boundary bricks in a file.
     public void PrintData(){
 
-        ArrayList<VoxelToBrick> DNASequenceData = ImportSequencesCoordinatesMap.finalData;
+        ArrayList<VoxelToBrick> DNASequenceData = ImportSequencesCoordinatesMap.brickList;
         java.util.Date date = new java.util.Date();
         long timeStamp = date.getTime();
 
         if(MainFrame.isPDFSaved == false) {
             c = new ImportSequencesCoordinatesMap();
-            DNASequenceData = ImportSequencesCoordinatesMap.finalData;
+            DNASequenceData = ImportSequencesCoordinatesMap.brickList;
         }
         // TODO Auto-generated method stub
         BufferedWriter bufferedWriter = null;
@@ -40,10 +40,16 @@ public class SaveCSVFromImportedFile {
             e1.printStackTrace();
         }
 
-        System.out.println("csv file has been successfully created in your project workspace");
+        MainFrame.printLog("csv file has been successfully created in your project workspace", Color.green);
         //if file doesnt exists, then create it
 
         try {
+            for (int i = 0; i < DNASequenceData.size(); i++) {
+                if (DNASequenceData.get(i).isMapped == false) {
+                    DNASequenceData.remove(i);
+                    i--;
+                }
+            }
             bufferedWriter.write("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B");
 
             int domainCount = 0, size = 0;
@@ -68,15 +74,15 @@ public class SaveCSVFromImportedFile {
             bufferedWriter.write("Number of nucleotides: "+domainCount*8+"\n\n");
 
             bufferedWriter.write("Strand number");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("Plate number");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("Position");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("DNA Sequences");
-            bufferedWriter.write(";");
-            bufferedWriter.write("[x,y,z] coordinates");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+            bufferedWriter.write("[x y z] coordinates");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("helix");
             bufferedWriter.write("\n");
 
@@ -84,90 +90,90 @@ public class SaveCSVFromImportedFile {
 
                 if (DNASequenceData.get(i).isMapped == true) {
                     bufferedWriter.write(String.valueOf(DNASequenceData.get(i).strandNumber));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write(String.valueOf(DNASequenceData.get(i).plateNumber));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write(String.valueOf(DNASequenceData.get(i).position));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     //System.out.println("printing for" + i + " " + DNASequenceData.get(i).getCompleteSequence());
                     bufferedWriter.write(DNASequenceData.get(i).getCompleteSequence());
                 }
                 else {
                     bufferedWriter.write("not found");
-                    bufferedWriter.write("not found");
-                    bufferedWriter.write("not found");
-                    bufferedWriter.write(";");
-                    bufferedWriter.write("not found");
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                    bufferedWriter.write(" ");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                    bufferedWriter.write(" ");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     //System.out.println("printing for" + i + " " + DNASequenceData.get(i).getCompleteSequence());
-                    bufferedWriter.write("not found");
+                    bufferedWriter.write(" ");
                 }
-                    bufferedWriter.write(";");
-                    //identify and print for domains 1 and 2
-                    if (DNASequenceData.get(i).x3 == -1) {
-                        bufferedWriter.write("[" + DNASequenceData.get(i).x1 + "," +
-                                DNASequenceData.get(i).y1 + "," +
-                                DNASequenceData.get(i).z1 + "]");
-                        bufferedWriter.write("[" + DNASequenceData.get(i).x2 + "," +
-                                DNASequenceData.get(i).y2 + "," +
-                                DNASequenceData.get(i).z2 + "]");
-                        bufferedWriter.write(";");
-                    }
-                    //identify and print for domains 3 and 4
-                    else if (DNASequenceData.get(i).x1 == -1) {
-                        bufferedWriter.write("[" + DNASequenceData.get(i).x3 + "," +
-                                DNASequenceData.get(i).y3 + "," +
-                                DNASequenceData.get(i).z3 + "]");
-                        bufferedWriter.write("[" + DNASequenceData.get(i).x4 + "," +
-                                DNASequenceData.get(i).y4 + "," +
-                                DNASequenceData.get(i).z4 + "]");
-                        bufferedWriter.write(";");
-                    }
-                    //identify and print for full bricks
-                    else {
-                        bufferedWriter.write("[" + DNASequenceData.get(i).x1 + "," +
-                                DNASequenceData.get(i).y1 + "," +
-                                DNASequenceData.get(i).z1 + "][" +
-                                DNASequenceData.get(i).x2 + "," +
-                                DNASequenceData.get(i).y2 + "," +
-                                DNASequenceData.get(i).z2 + "][" + DNASequenceData.get(i).x3 + "," +
-                                DNASequenceData.get(i).y3 + "," +
-                                DNASequenceData.get(i).z3 + "][" +
-                                DNASequenceData.get(i).x4 + "," +
-                                DNASequenceData.get(i).y4 + "," +
-                                DNASequenceData.get(i).z4 + "]");
-                        bufferedWriter.write(";");
-                    }
-                    bufferedWriter.write("[");
-                    //Printing helix values
-                    if (DNASequenceData.get(i).helix1 != -1) {
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix1));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z1));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix2));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z2));
-                    }
-                    if (DNASequenceData.get(i).helix1 != -1 && DNASequenceData.get(i).helix3 != -1)
-                        bufferedWriter.write(",");
-                    if (DNASequenceData.get(i).helix3 != -1) {
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix3));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z3));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix4));
-                        bufferedWriter.write(",");
-                        bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z4));
-                    }
-                    bufferedWriter.write("]");
-                    bufferedWriter.write("\n");
+                bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                //identify and print for domains 1 and 2
+                if (DNASequenceData.get(i).x3 == -1) {
+                    bufferedWriter.write("[" + DNASequenceData.get(i).x1 + "  " +
+                            DNASequenceData.get(i).y1 + "  " +
+                            DNASequenceData.get(i).z1 + "]");
+                    bufferedWriter.write("[" + DNASequenceData.get(i).x2 + " " +
+                            DNASequenceData.get(i).y2 + " " +
+                            DNASequenceData.get(i).z2 + "]");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                }
+                //identify and print for domains 3 and 4
+                else if (DNASequenceData.get(i).x1 == -1) {
+                    bufferedWriter.write("[" + DNASequenceData.get(i).x3 + "  " +
+                            DNASequenceData.get(i).y3 + "  " +
+                            DNASequenceData.get(i).z3 + "]");
+                    bufferedWriter.write("[" + DNASequenceData.get(i).x4 + "  " +
+                            DNASequenceData.get(i).y4 + "  " +
+                            DNASequenceData.get(i).z4 + "]");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                }
+                //identify and print for full bricks
+                else {
+                    bufferedWriter.write("[" + DNASequenceData.get(i).x1 + "  " +
+                            DNASequenceData.get(i).y1 + "  " +
+                            DNASequenceData.get(i).z1 + "][" +
+                            DNASequenceData.get(i).x2 + "  " +
+                            DNASequenceData.get(i).y2 + "  " +
+                            DNASequenceData.get(i).z2 + "][" + DNASequenceData.get(i).x3 + "  " +
+                            DNASequenceData.get(i).y3 + "  " +
+                            DNASequenceData.get(i).z3 + "][" +
+                            DNASequenceData.get(i).x4 + "  " +
+                            DNASequenceData.get(i).y4 + "  " +
+                            DNASequenceData.get(i).z4 + "]");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+                }
+                bufferedWriter.write("[");
+                //Printing helix values
+                if (DNASequenceData.get(i).helix1 != -1) {
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix1));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z1));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix2));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z2));
+                }
+                if (DNASequenceData.get(i).helix1 != -1 && DNASequenceData.get(i).helix3 != -1)
+                    bufferedWriter.write("  ");
+                if (DNASequenceData.get(i).helix3 != -1) {
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix3));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z3));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).helix4));
+                    bufferedWriter.write("  ");
+                    bufferedWriter.write(String.valueOf(DNASequenceData.get(i).z4));
+                }
+                bufferedWriter.write("]");
+                bufferedWriter.write("\n");
 
             }
 
 
             bufferedWriter.write("\n\n Generated using 3DNA");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("(http://www.guptalab.org/3dna/)");
             bufferedWriter.close();
             ImageIcon img = new ImageIcon("icons/software_logo.png");
@@ -206,13 +212,13 @@ public class SaveCSVFromImportedFile {
     //This function saves the detailed data with boundary bricks in a file.
     public void PrintBoundaryData(){
 
-        ArrayList<VoxelToBrick> DNASequenceBoundaryData = ImportSequencesCoordinatesMap.finalBoundaryData;
+        ArrayList<VoxelToBrick> DNASequenceBoundaryData = ImportSequencesCoordinatesMap.boundaryBrickList;
         java.util.Date date = new java.util.Date();
         long timeStamp = date.getTime();
 
         if(MainFrame.isPDFBoundarySaved == false){
             c = new ImportSequencesCoordinatesMap();
-            DNASequenceBoundaryData = ImportSequencesCoordinatesMap.finalBoundaryData;
+            DNASequenceBoundaryData = ImportSequencesCoordinatesMap.boundaryBrickList;
         }
         // TODO Auto-generated method stub
         BufferedWriter bufferedWriter = null;
@@ -223,10 +229,16 @@ public class SaveCSVFromImportedFile {
             e1.printStackTrace();
         }
 
-        System.out.println("csv file has been successfully created in your project workspace");
+        MainFrame.printLog("csv file with boundary sequences has been successfully created in your project workspace", Color.green);
         //if file doesnt exists, then create it
 
         try {
+            for (int i = 0; i < DNASequenceBoundaryData.size(); i++) {
+                if (DNASequenceBoundaryData.get(i).isMapped == false) {
+                    DNASequenceBoundaryData.remove(i);
+                    i--;
+                }
+            }
             bufferedWriter.write("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B");
 
 
@@ -251,15 +263,15 @@ public class SaveCSVFromImportedFile {
             bufferedWriter.write("\n\nNumber of strands:"+size+"\n");
             bufferedWriter.write("Number of nucleotides: "+domainCount*8+"\n\n");
             bufferedWriter.write("Strand number");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("Plate number");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("Position");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("DNA Sequences");
-            bufferedWriter.write(";");
-            bufferedWriter.write("[x,y,z] coordinates");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
+            bufferedWriter.write("[x y z] coordinates");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("helix");
             bufferedWriter.write("\n");
 
@@ -267,88 +279,85 @@ public class SaveCSVFromImportedFile {
                 //System.out.println("printing for" + i);
                 if (DNASequenceBoundaryData.get(i).isMapped == true) {
                     bufferedWriter.write(String.valueOf(DNASequenceBoundaryData.get(i).strandNumber));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write(String.valueOf(DNASequenceBoundaryData.get(i).plateNumber));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write(String.valueOf(DNASequenceBoundaryData.get(i).position));
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write(DNASequenceBoundaryData.get(i).getCompleteSequence());
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     //Identify and print bricks
 
                     //check if domains 1 and 2 are present
                     if (DNASequenceBoundaryData.get(i).x1 != -1) {
-                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x1 + "," +
-                                DNASequenceBoundaryData.get(i).y1 + "," +
+                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x1 + "  " +
+                                DNASequenceBoundaryData.get(i).y1 + "  " +
                                 DNASequenceBoundaryData.get(i).z1 + "][" +
-                                DNASequenceBoundaryData.get(i).x2 + "," +
-                                DNASequenceBoundaryData.get(i).y2 + "," +
+                                DNASequenceBoundaryData.get(i).x2 + "  " +
+                                DNASequenceBoundaryData.get(i).y2 + "  " +
                                 DNASequenceBoundaryData.get(i).z2 + "]");
                     }
                     //check if domains 3 and 4 are present
                     if (DNASequenceBoundaryData.get(i).x3 != -1) {
-                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x3 + "," +
-                                DNASequenceBoundaryData.get(i).y3 + "," +
+                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x3 + "  " +
+                                DNASequenceBoundaryData.get(i).y3 + "  " +
                                 DNASequenceBoundaryData.get(i).z3 + "][" +
-                                DNASequenceBoundaryData.get(i).x4 + "," +
-                                DNASequenceBoundaryData.get(i).y4 + "," +
+                                DNASequenceBoundaryData.get(i).x4 + "  " +
+                                DNASequenceBoundaryData.get(i).y4 + "  " +
                                 DNASequenceBoundaryData.get(i).z4 + "]");
                     }
                     //now print the domains 5 and 6
                     if (DNASequenceBoundaryData.get(i).x5 != -1) {
-                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x5 + "," +
-                                DNASequenceBoundaryData.get(i).y5 + "," +
+                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).x5 + "  " +
+                                DNASequenceBoundaryData.get(i).y5 + "  " +
                                 DNASequenceBoundaryData.get(i).z5 + "][" +
-                                DNASequenceBoundaryData.get(i).x6 + "," +
-                                DNASequenceBoundaryData.get(i).y6 + "," +
+                                DNASequenceBoundaryData.get(i).x6 + "  " +
+                                DNASequenceBoundaryData.get(i).y6 + "  " +
                                 DNASequenceBoundaryData.get(i).z6 + "]");
                     }
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     //Identify and print helix
                     //check if domains 1 and 2 are present
                     bufferedWriter.write("[");
                     if (DNASequenceBoundaryData.get(i).x1 != -1) {
-                        bufferedWriter.write(DNASequenceBoundaryData.get(i).helix1 + "," +
-                                DNASequenceBoundaryData.get(i).z1 + "," +
-                                DNASequenceBoundaryData.get(i).helix2 + "," +
+                        bufferedWriter.write(DNASequenceBoundaryData.get(i).helix1 + "  " +
+                                DNASequenceBoundaryData.get(i).z1 + "  " +
+                                DNASequenceBoundaryData.get(i).helix2 + "  " +
                                 DNASequenceBoundaryData.get(i).z2);
                     }
                     if (DNASequenceBoundaryData.get(i).x1 != -1 && DNASequenceBoundaryData.get(i).x3 != -1)
-                        bufferedWriter.write(",");
+                        bufferedWriter.write("  ");
                     //check if domains 3 and 4 are present
                     if (DNASequenceBoundaryData.get(i).x3 != -1) {
-                        bufferedWriter.write(DNASequenceBoundaryData.get(i).helix3 + "," +
-                                DNASequenceBoundaryData.get(i).z3 + "," +
-                                DNASequenceBoundaryData.get(i).helix4 + "," +
+                        bufferedWriter.write(DNASequenceBoundaryData.get(i).helix3 + "  " +
+                                DNASequenceBoundaryData.get(i).z3 + "  " +
+                                DNASequenceBoundaryData.get(i).helix4 + "  " +
                                 DNASequenceBoundaryData.get(i).z4);
                     }
                     if ((DNASequenceBoundaryData.get(i).x1 != -1 && DNASequenceBoundaryData.get(i).x5 != -1) ||
                             (DNASequenceBoundaryData.get(i).x3 != -1 && DNASequenceBoundaryData.get(i).x5 != -1))
-                        bufferedWriter.write(",");
+                        bufferedWriter.write("  ");
                     //now print the domains 5 and 6
                     if (DNASequenceBoundaryData.get(i).x5 != -1) {
-                        bufferedWriter.write("[" + DNASequenceBoundaryData.get(i).helix5 + "," +
-                                DNASequenceBoundaryData.get(i).z5 + "," +
-                                DNASequenceBoundaryData.get(i).helix6 + "," +
-                                DNASequenceBoundaryData.get(i).z6 + "]");
+                        bufferedWriter.write(DNASequenceBoundaryData.get(i).helix5 + "  " +
+                                DNASequenceBoundaryData.get(i).z5 + "  " +
+                                DNASequenceBoundaryData.get(i).helix6 + "  " +
+                                DNASequenceBoundaryData.get(i).z6);
                     }
                     bufferedWriter.write("]");
-                    bufferedWriter.write(";");
+                    bufferedWriter.write(String.valueOf(MainFrame.delimiter));
                     bufferedWriter.write("\n");
                 }
             }
 
             bufferedWriter.write("\n\n Generated using 3DNA");
-            bufferedWriter.write(";");
+            bufferedWriter.write(String.valueOf(MainFrame.delimiter));
             bufferedWriter.write("(http://www.guptalab.org/3dna/)");
             bufferedWriter.close();
-            ImageIcon img = new ImageIcon("icons/software_logo.png");
-            java.awt.Image imag=img.getImage();
-
             final JFrame fileSavedFrame = new JFrame("Output success");
             fileSavedFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             fileSavedFrame.setBackground(Color.DARK_GRAY);
-            fileSavedFrame.setIconImage(imag);
+            fileSavedFrame.setIconImage(MainFrame.imag);
 
             JPanel fileSavedPanel = new JPanel();
             fileSavedPanel.setBackground(Color.DARK_GRAY);

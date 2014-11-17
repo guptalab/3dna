@@ -28,10 +28,10 @@ public class SavePDFFromImportedFile {
     }
 
     public void PrintData(){
-        ArrayList<VoxelToBrick> DNASequenceData = ImportSequencesCoordinatesMap.finalData;
+        ArrayList<VoxelToBrick> DNASequenceData = ImportSequencesCoordinatesMap.brickList;
         if(MainFrame.isCSVSaved == false) {
             c = new ImportSequencesCoordinatesMap();
-            DNASequenceData = ImportSequencesCoordinatesMap.finalData;
+            DNASequenceData = ImportSequencesCoordinatesMap.brickList;
         }
         // TODO Auto-generated method stub
         long timeStamp;
@@ -78,6 +78,12 @@ public class SavePDFFromImportedFile {
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         try {
+            for (int i = 0; i < DNASequenceData.size(); i++) {
+                if (DNASequenceData.get(i).isMapped == false) {
+                    DNASequenceData.remove(i);
+                    i--;
+                }
+            }
             document.add(new Paragraph("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B"));
             document.add(new Paragraph("Number of strands:"+DNASequenceData.size()+"\n"));
 
@@ -227,13 +233,11 @@ public class SavePDFFromImportedFile {
         }
 
         document.close();
-        ImageIcon img = new ImageIcon("icons/software_logo.png");
-        java.awt.Image imag=img.getImage();
 
         final JFrame fileSavedFrame = new JFrame("Output success");
         fileSavedFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         fileSavedFrame.setBackground(Color.DARK_GRAY);
-        fileSavedFrame.setIconImage(imag);
+        fileSavedFrame.setIconImage(MainFrame.imag);
 
         JPanel fileSavedPanel = new JPanel();
         fileSavedPanel.setBackground(Color.DARK_GRAY);
@@ -254,23 +258,22 @@ public class SavePDFFromImportedFile {
                 fileSavedFrame.dispose();
             }
         });
+        MainFrame.printLog("pdf file has been successfully created in your project workspace", Color.green);
 
     }
 
     public void PrintBoundaryData(){
-        ArrayList<VoxelToBrick> DNASequenceBoundaryData=ImportSequencesCoordinatesMap.finalBoundaryData;
+        ArrayList<VoxelToBrick> DNASequenceBoundaryData=ImportSequencesCoordinatesMap.boundaryBrickList;
         if(MainFrame.isCSVBoundarySaved==false) {
             c = new ImportSequencesCoordinatesMap();
-            DNASequenceBoundaryData = ImportSequencesCoordinatesMap.finalBoundaryData;
+            DNASequenceBoundaryData = ImportSequencesCoordinatesMap.boundaryBrickList;
         }
 
         // TODO Auto-generated method stub
         long timeStamp;
         java.util.Date date =new java.util.Date();
         timeStamp=date.getTime();
-        System.out.println(new Timestamp(timeStamp));
         String stringTime=String.valueOf(timeStamp);
-        System.out.println(stringTime);
         Document document = new Document(new com.itextpdf.text.Rectangle(PageSize.A4));
         PdfWriter writer = null;
         try {
@@ -311,7 +314,12 @@ public class SavePDFFromImportedFile {
             e1.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
         }
         try {
-
+            for (int i = 0; i < DNASequenceBoundaryData.size(); i++) {
+                if (DNASequenceBoundaryData.get(i).isMapped == false) {
+                    DNASequenceBoundaryData.remove(i);
+                    i--;
+                }
+            }
             document.add(new Paragraph("\n\n3DNA -DNA Sequences Data for nano structure "+MainFrame.height+"H x "+MainFrame.width+"H x "+MainFrame.depth*8+"B"));
             document.add(new Paragraph("Number of strands:"+DNASequenceBoundaryData.size()+"\n"));
 
@@ -547,13 +555,10 @@ public class SavePDFFromImportedFile {
         }
 
         document.close();
-        ImageIcon img = new ImageIcon("icons/software_logo.png");
-        java.awt.Image imag=img.getImage();
-
         final JFrame fileSavedFrame = new JFrame("Output success");
         fileSavedFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         fileSavedFrame.setBackground(Color.DARK_GRAY);
-        fileSavedFrame.setIconImage(imag);
+        fileSavedFrame.setIconImage(MainFrame.imag);
 
         JPanel fileSavedPanel = new JPanel();
         fileSavedPanel.setBackground(Color.DARK_GRAY);
@@ -574,9 +579,7 @@ public class SavePDFFromImportedFile {
                 fileSavedFrame.dispose();
             }
         });
-
-
-        System.out.println("Document Generated...!!!!!!");
+        MainFrame.printLog("pdf file with boundary sequences has been successfully created in your project workspace", Color.green);
 
     }
 

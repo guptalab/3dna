@@ -2,6 +2,7 @@ import javax.media.j3d.Appearance;
 import javax.media.j3d.ColoringAttributes;
 import javax.media.j3d.TransparencyAttributes;
 import javax.vecmath.Color3f;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,7 +22,7 @@ public class ZMaxPlaneProtectorActionListener implements ActionListener {
         if (MainFrame.zMaxPlaneProtectorCheckbox.isSelected() == true) {
             protectorCubeAppearance.setTransparencyAttributes(partialTransparencyAttributes);
             MainFrame.isMaxZProtectorPlaneEnabled = true;
-            System.out.println("Protector Bricks in the Z max has been enabled");
+            MainFrame.printLog("Protector Bricks in the Z max has been enabled", Color.CYAN);
             for(int i=0; i <CanvasActionListener.protectorCubeArrayList.size(); i++) {
                 if(CanvasActionListener.protectorCubeArrayList.get(i).zCord == 0) {
                     DNAProtectorCube protectorCube = CanvasActionListener.protectorCubeArrayList.get(i).canvasDNAProtectorCube;
@@ -31,7 +32,7 @@ public class ZMaxPlaneProtectorActionListener implements ActionListener {
         }else {
             transparencyAppearance.setTransparencyAttributes(fullTransparencyAttributes);
             MainFrame.isMaxZProtectorPlaneEnabled = false;
-            System.out.println("Protector Bricks in the Z max has been disabled");
+            MainFrame.printLog("Protector Bricks in the Z max has been disabled", Color.CYAN);
             for(int i=0; i <CanvasActionListener.protectorCubeArrayList.size(); i++) {
                 if(CanvasActionListener.protectorCubeArrayList.get(i).zCord == 0) {
                     DNAProtectorCube protectorCube = CanvasActionListener.protectorCubeArrayList.get(i).canvasDNAProtectorCube;

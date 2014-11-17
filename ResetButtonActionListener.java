@@ -16,9 +16,9 @@ public class ResetButtonActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //To change body of implemented methods use File | Settings | File Templates.
         //set the ViewingPlatform by setting the canvasx, canvasy, canvasz values as 0.0,0.0,2.0
-        CanvasActionListener.canvasx=0.0f;
-        CanvasActionListener.canvasy=0.0f;
-        CanvasActionListener.canvasz=2.0f;
+        CanvasActionListener.canvasx=0.5f;
+        CanvasActionListener.canvasy=-0.25f;
+        CanvasActionListener.canvasz=3.0f;
 
         ImportActionListener.canvasx=0.0f;
         ImportActionListener.canvasy=0.0f;
@@ -47,6 +47,7 @@ public class ResetButtonActionListener implements ActionListener {
             View_Transform3D.setTranslation(new Vector3f(CanvasActionListener.canvasx,
                     CanvasActionListener.canvasy,CanvasActionListener.canvasz)); // set 3d to  x=0, y=-1, z= 5
             View_TransformGroup.setTransform(View_Transform3D);  // assign Transform3D to ViewPlatform
+            CanvasActionListener.masterTrans.setTransform(new Transform3D());
         }
 
     }

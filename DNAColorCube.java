@@ -32,20 +32,6 @@ public class DNAColorCube extends ColorCube{
             0.8f, 0.8f, 0.8f,
             0.8f, 0.8f, 0.8f
     };
-    public static final float[] colorLightSteelBlue = {
-
-            176/255f, 196/255f, 222/255f,
-            176/255f, 196/255f, 222/255f,
-            176/255f, 196/255f, 222/255f,
-            176/255f, 196/255f, 222/255f
-    };
-    public static final float[] colorLemonChiffon = {
-
-            1f, 250/255f, 205/255f,
-            1f, 250/255f, 205/255f,
-            1f, 250/255f, 205/255f,
-            1f, 250/255f, 205/255f
-    };
     public static final float[] colorMistyRose = {
 
             1f, 228/255f, 225/255f,
@@ -61,26 +47,26 @@ public class DNAColorCube extends ColorCube{
         cubeArray.setColor(1,colorLightGreen);
         cubeArray.setColor(2,colorLightGreen);
         cubeArray.setColor(3,colorLightGreen);
-        cubeArray.setColor(4,colorLightGray );
-        cubeArray.setColor(5,colorLightGray );
-        cubeArray.setColor(6,colorLightGray );
-        cubeArray.setColor(7,colorLightGray );
-        cubeArray.setColor(8,colorMistyRose );
-        cubeArray.setColor(9,colorMistyRose );
-        cubeArray.setColor(10,colorMistyRose );
-        cubeArray.setColor(11,colorMistyRose );
-        cubeArray.setColor(12,colorLightSteelBlue);
-        cubeArray.setColor(13,colorLightSteelBlue);
-        cubeArray.setColor(14,colorLightSteelBlue);
-        cubeArray.setColor(15,colorLightSteelBlue);
-        cubeArray.setColor(16,colorLemonChiffon);
-        cubeArray.setColor(17,colorLemonChiffon);
-        cubeArray.setColor(18,colorLemonChiffon);
-        cubeArray.setColor(19,colorLemonChiffon);
-        cubeArray.setColor(20,colorLightSteelBlue);
-        cubeArray.setColor(21,colorLightSteelBlue);
-        cubeArray.setColor(22,colorLightSteelBlue);
-        cubeArray.setColor(23,colorLightSteelBlue);
+        cubeArray.setColor(4,colorLightGreen);
+        cubeArray.setColor(5,colorLightGreen);
+        cubeArray.setColor(6,colorLightGreen);
+        cubeArray.setColor(7,colorLightGreen);
+        cubeArray.setColor(8,colorLightGray);
+        cubeArray.setColor(9,colorLightGray);
+        cubeArray.setColor(10,colorLightGray);
+        cubeArray.setColor(11,colorLightGray);
+        cubeArray.setColor(12,colorLightGray    );
+        cubeArray.setColor(13,colorLightGray    );
+        cubeArray.setColor(14,colorLightGray    );
+        cubeArray.setColor(15,colorLightGray    );
+        cubeArray.setColor(16,colorMistyRose);
+        cubeArray.setColor(17,colorMistyRose);
+        cubeArray.setColor(18,colorMistyRose);
+        cubeArray.setColor(19,colorMistyRose);
+        cubeArray.setColor(20,colorMistyRose);
+        cubeArray.setColor(21,colorMistyRose);
+        cubeArray.setColor(22,colorMistyRose);
+        cubeArray.setColor(23,colorMistyRose);
     }
     public void setCordinate(int x, int y, int z){
         xCord=x;

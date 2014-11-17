@@ -12,7 +12,6 @@ public class SavingOptionsActionListener implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if((MainFrame.isBoundaryCalled && (MainFrame.isPDFBoundarySaved == false || MainFrame.isCSVBoundarySaved == false)) ||
                 (MainFrame.isBoundaryCalled == false && (MainFrame.isPDFSaved == false ||  MainFrame.isCSVSaved == false ))) {
-
             //option pane
             ImageIcon saveAsCSVIcon = new ImageIcon("icons/csv.png");
             ImageIcon saveAsPDFIcon = new ImageIcon("icons/pdf.png");
@@ -53,7 +52,7 @@ public class SavingOptionsActionListener implements ActionListener {
                         MainFrame.isBoundaryCalled = false;
 
                     if(saveAsPDFCheckbox.isSelected()){
-                        if (MainFrame.isDNASequencesFileImported) {
+                        if (MainFrame.isImportSequencesListEnabled || MainFrame.isYonggangSequencesListEnabled) {
                             System.out.println("Save as pdf from imported file called");
                             SavePDFFromImportedFile savePDF = new SavePDFFromImportedFile();
                             if (MainFrame.isBoundaryCalled == true) {
@@ -81,7 +80,7 @@ public class SavingOptionsActionListener implements ActionListener {
 
                     }
                     if(saveAsCSVCheckbox.isSelected()){
-                        if (MainFrame.isDNASequencesFileImported){
+                        if (MainFrame.isImportSequencesListEnabled || MainFrame.isYonggangSequencesListEnabled) {
                             System.out.println("Save as csv from imported file called");
                             SaveCSVFromImportedFile saveCSV = new SaveCSVFromImportedFile();
                             if (MainFrame.isBoundaryCalled == true) {

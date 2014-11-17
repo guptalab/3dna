@@ -28,9 +28,9 @@ public class UserManualActionListener implements ActionListener {
             filePath = filePath.substring(0, filePath.indexOf("TempFile"));
 
             if (MainFrame.osName.toLowerCase().contains("mac")) {
-                filePath = filePath.concat("DNA Pen.app/Contents/Resources/DNA Pen/docs/User Manual.pdf");
+                filePath = filePath.concat("DNA Pen.app/Contents/Resources/DNA Pen/docs/3DNA_usermanual.pdf");
             } else {
-                filePath = filePath.concat("/docs/UserManual.pdf");
+                filePath = filePath.concat("/docs/3DNA_usermanual.pdf");
             }
 
             desktop.open(new File(filePath));
