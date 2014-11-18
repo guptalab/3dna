@@ -44,4 +44,4 @@ Build Instructions
 
 - We recommend using [IntelliJ Idea](https://www.jetbrains.com/idea/) as an IDE, for compiling 3DNA on your system. 
 
-- Hope that helps you to install 3DNA. In case any shout out @ `dnacloud@guptalab.org`
+- Hope that helps you to install 3DNA. In case any shout out @ `3dna@guptalab.org`
